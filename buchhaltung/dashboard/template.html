@@ -1,0 +1,421 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLICKWINKEL · Buchhaltung</title>
+<style>
+  :root {
+    --bg: #F7F8F5;
+    --card: #FFFFFF;
+    --ink: #1D2823;
+    --muted: #5C6B62;
+    --faint: #8B978E;
+    --line: #E2E7E1;
+    --accent: #17694B;
+    --accent-ink: #FFFFFF;
+    --good: #177245;      --good-bg: #E3F2E9;
+    --warn: #8A5D06;      --warn-bg: #FAF0D9;
+    --crit: #B3261E;      --crit-bg: #FBE7E5;
+    --info: #4C55A8;      --info-bg: #EAEBF8;
+    --neutral: #5C6B62;   --neutral-bg: #EDF0EC;
+    --bar: #1F7A56;
+    --shadow: 0 1px 2px rgba(29, 40, 35, .06), 0 4px 16px rgba(29, 40, 35, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111613;
+      --card: #1A211C;
+      --ink: #E7EDE8;
+      --muted: #9DABA1;
+      --faint: #75837A;
+      --line: #2A332D;
+      --accent: #4CB88A;
+      --accent-ink: #0C1410;
+      --good: #5FBE8F;    --good-bg: #1C3328;
+      --warn: #D9A441;    --warn-bg: #38300F;
+      --crit: #E5695E;    --crit-bg: #3D1F1C;
+      --info: #99A1E8;    --info-bg: #262B4A;
+      --neutral: #9DABA1; --neutral-bg: #242C26;
+      --bar: #3FA575;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111613; --card: #1A211C; --ink: #E7EDE8; --muted: #9DABA1; --faint: #75837A;
+    --line: #2A332D; --accent: #4CB88A; --accent-ink: #0C1410;
+    --good: #5FBE8F; --good-bg: #1C3328; --warn: #D9A441; --warn-bg: #38300F;
+    --crit: #E5695E; --crit-bg: #3D1F1C; --info: #99A1E8; --info-bg: #262B4A;
+    --neutral: #9DABA1; --neutral-bg: #242C26; --bar: #3FA575; --shadow: none;
+  }
+  :root[data-theme="light"] {
+    --bg: #F7F8F5; --card: #FFFFFF; --ink: #1D2823; --muted: #5C6B62; --faint: #8B978E;
+    --line: #E2E7E1; --accent: #17694B; --accent-ink: #FFFFFF;
+    --good: #177245; --good-bg: #E3F2E9; --warn: #8A5D06; --warn-bg: #FAF0D9;
+    --crit: #B3261E; --crit-bg: #FBE7E5; --info: #4C55A8; --info-bg: #EAEBF8;
+    --neutral: #5C6B62; --neutral-bg: #EDF0EC; --bar: #1F7A56;
+    --shadow: 0 1px 2px rgba(29, 40, 35, .06), 0 4px 16px rgba(29, 40, 35, .05);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 72px; }
+  a { color: var(--accent); }
+
+  header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; justify-content: space-between; margin-bottom: 26px; }
+  .wordmark { font-size: 13px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: 26px; font-weight: 650; letter-spacing: -.01em; margin: 2px 0 0; text-wrap: balance; }
+  .stand { font-size: 13px; color: var(--muted); }
+  h2 { font-size: 17px; font-weight: 650; margin: 0 0 4px; }
+  .sub { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  section { margin-top: 34px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 12px; box-shadow: var(--shadow); }
+  .kpi .label { font-size: 11px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .kpi .value { font-size: 27px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .kpi .note { font-size: 12px; color: var(--faint); margin-top: 2px; }
+  .kpi.alert .value { color: var(--warn); }
+  .kpi.crit .value { color: var(--crit); }
+
+  .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 99px; white-space: nowrap; }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: currentColor; }
+  .chip.bezahlt { color: var(--good); background: var(--good-bg); }
+  .chip.klaeren { color: var(--warn); background: var(--warn-bg); }
+  .chip.offen { color: var(--crit); background: var(--crit-bg); }
+  .chip.fehlt { color: var(--info); background: var(--info-bg); }
+  .chip.pruefen { color: var(--neutral); background: var(--neutral-bg); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .todo { display: grid; gap: 10px; }
+  .todo-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+  .todo-item .chip { margin-top: 2px; flex: none; }
+  .todo-item .t-main { flex: 1; min-width: 0; }
+  .todo-item .t-title { font-weight: 600; }
+  .todo-item .t-note { font-size: 13px; color: var(--muted); }
+  .todo-item .t-link { font-size: 13px; white-space: nowrap; }
+
+  .export-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: 11px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .field input { font: inherit; font-variant-numeric: tabular-nums; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 270px; }
+  .field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.btn { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 10px 16px; cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+  button.btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  button.btn:disabled { opacity: .45; cursor: not-allowed; }
+  button.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .export-note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  .chart-box { overflow-x: auto; }
+  .chart { display: flex; gap: 14px; align-items: flex-end; height: 190px; padding-top: 22px; min-width: 480px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative; }
+  .bar { width: 100%; max-width: 64px; background: var(--bar); border-radius: 4px 4px 0 0; min-height: 2px; position: relative; }
+  .bar-col:hover .bar { filter: brightness(1.12); }
+  .bar-val { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .bar-lbl { font-size: 12px; color: var(--muted); }
+  .chart-note { font-size: 12px; color: var(--faint); margin-top: 10px; }
+
+  .tbl-box { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; font-size: 11px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.month td { background: var(--bg); font-size: 12px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 7px 10px; }
+  tr.month td .msum { float: right; font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; }
+  .v-name { font-weight: 600; }
+  .v-desc { font-size: 12.5px; color: var(--muted); max-width: 420px; }
+  .belegnr { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  td .hint { font-size: 12px; color: var(--faint); }
+
+  footer { margin-top: 44px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .bar { transition: filter .15s ease; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="wordmark">Blickwinkel FlexCo</div>
+      <h1>Buchhaltungs-Cockpit</h1>
+    </div>
+    <div class="stand">Stand: <span id="stand"></span> · Quelle: Posteingang blickwinkel.pro@gmail.com</div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section id="sec-todo">
+    <h2>Zu erledigen</h2>
+    <p class="sub">Alles, was Geld oder den Buchhalter betrifft und nicht von allein passiert.</p>
+    <div class="todo" id="todo"></div>
+  </section>
+
+  <section>
+    <h2>Zahlung &amp; Export für Raiffeisen INFINITY</h2>
+    <p class="sub">Offene Posten mit Bankverbindung landen hier als fertige Überweisungsdatei. INFINITY importiert Zahlungen als SEPA-Datei (XML, pain.001) – die CSV gibt es zusätzlich als Kontrollliste.</p>
+    <div class="card">
+      <div class="tbl-box" id="open-table"></div>
+      <div class="export-grid">
+        <div class="field">
+          <label for="iban">Auftraggeber-IBAN (wird nur lokal gespeichert)</label>
+          <input id="iban" placeholder="AT.. .... .... .... ...." autocomplete="off" spellcheck="false">
+        </div>
+        <button class="btn" id="btn-sepa">SEPA-Datei für INFINITY</button>
+        <button class="btn secondary" id="btn-ueb-csv">Überweisungen als CSV</button>
+      </div>
+      <div class="export-note" id="export-note"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ausgaben pro Monat</h2>
+    <p class="sub" id="chart-sub"></p>
+    <div class="card chart-box">
+      <div class="chart" id="chart" role="img" aria-label="Balkendiagramm der Ausgaben pro Monat"></div>
+      <div class="chart-note" id="chart-note"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Belegliste <span id="jahr"></span></h2>
+    <p class="sub">Jeder Beleg aus dem Posteingang, buchungsfertig aufbereitet. <button class="btn secondary" id="btn-belegliste" style="padding:6px 12px; font-size:13px;">Belegliste als CSV (für den Buchhalter)</button></p>
+    <div class="card tbl-box" id="ledger-table"></div>
+  </section>
+
+  <footer>
+    <p><strong>So funktioniert es:</strong> Der Posteingang wird automatisch nach Rechnungen, Belegen und Zahlungsereignissen durchsucht. Jeder Fund landet in der Belegliste; was Handlung braucht (offene Zahlung, fehlender Beleg, abgelehnte Karte), erscheint oben unter „Zu erledigen“. Die Belegliste-CSV ist für die Übergabe an den Buchhalter gedacht, die SEPA-Datei für den Import in Raiffeisen INFINITY (Zahlungen → Importieren → Datei wählen → prüfen → zeichnen).</p>
+    <p id="foot-legend"></p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const PAYLOAD = /*__DATA__*/null;
+const L = PAYLOAD.ledger, CFG = PAYLOAD.config;
+const STATUS = {
+  bezahlt: { cls: "bezahlt", txt: "bezahlt" },
+  offen:   { cls: "offen",   txt: "offen" },
+  klaeren: { cls: "klaeren", txt: "klären" },
+};
+const MONATE = ["Jän", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+const eur = n => n == null ? "–" : n.toLocaleString("de-AT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const deDate = iso => iso ? iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) : "";
+const mail = t => `https://mail.google.com/mail/u/0/#all/${t}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// ---------- KPIs ----------
+const belege = L.belege.slice().sort((a, b) => a.belegdatum < b.belegdatum ? -1 : 1);
+const offene = belege.filter(b => b.status === "offen");
+const klaeren = belege.filter(b => b.status === "klaeren");
+const fehlend = belege.filter(b => b.beleg_da === "nein");
+const eurBekannt = belege.filter(b => b.brutto != null && b.waehrung === "EUR");
+const sumYtd = eurBekannt.reduce((s, b) => s + b.brutto, 0);
+const ohneBetrag = belege.filter(b => b.brutto == null).length;
+const offenSum = offene.filter(b => b.brutto != null).reduce((s, b) => s + b.brutto, 0);
+
+document.getElementById("stand").textContent = deDate(L.stand);
+document.getElementById("jahr").textContent = CFG.jahr;
+document.getElementById("kpis").innerHTML = `
+  <div class="kpi ${offene.length ? "crit" : ""}">
+    <div class="label">Offene Posten</div>
+    <div class="value">${offene.length ? eur(offenSum) + " €" : "0"}</div>
+    <div class="note">${offene.length ? offene.length + " Position(en) zu zahlen" : "nichts zu überweisen"}</div>
+  </div>
+  <div class="kpi ${klaeren.length ? "alert" : ""}">
+    <div class="label">Klärfälle</div>
+    <div class="value">${klaeren.length}</div>
+    <div class="note">${klaeren.length ? "Zahlung unklar – prüfen" : "alles eindeutig"}</div>
+  </div>
+  <div class="kpi ${fehlend.length ? "alert" : ""}">
+    <div class="label">Fehlende Belege</div>
+    <div class="value">${fehlend.length}</div>
+    <div class="note">PDF für Buchhalter besorgen</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Ausgaben ${CFG.jahr}</div>
+    <div class="value">${eur(sumYtd)} €</div>
+    <div class="note">${belege.length} Belege · ${ohneBetrag} davon Betrag nur im PDF</div>
+  </div>`;
+
+// ---------- To-do ----------
+const todos = [];
+for (const b of klaeren) todos.push({
+  cls: "klaeren", chip: "klären", title: `${b.lieferant} – Rechnung ${b.belegnr}`,
+  note: b.hinweis, thread: b.gmail_thread,
+});
+for (const b of fehlend.filter(x => x.status !== "klaeren")) todos.push({
+  cls: "fehlt", chip: "Beleg fehlt", title: `${b.lieferant}${b.belegnr ? " – " + b.belegnr : ""} (${deDate(b.belegdatum)})`,
+  note: b.hinweis || "Rechnungs-PDF besorgen und ablegen", thread: b.gmail_thread,
+});
+for (const b of offene) todos.push({
+  cls: "offen", chip: "offen", title: `${b.lieferant} – ${eur(b.brutto)} ${b.waehrung}`,
+  note: b.hinweis || "Über die Exportdatei unten bezahlen", thread: b.gmail_thread,
+});
+document.getElementById("todo").innerHTML = todos.length
+  ? todos.map(t => `<div class="todo-item">
+      <span class="chip ${t.cls}">${t.chip}</span>
+      <div class="t-main"><div class="t-title">${esc(t.title)}</div><div class="t-note">${esc(t.note)}</div></div>
+      ${t.thread ? `<a class="t-link" href="${mail(t.thread)}" target="_blank" rel="noopener">E-Mail öffnen ↗</a>` : ""}
+    </div>`).join("")
+  : `<div class="todo-item"><span class="chip bezahlt">erledigt</span><div class="t-main"><div class="t-title">Nichts offen.</div><div class="t-note">Alle erkannten Belege sind bezahlt und zugeordnet.</div></div></div>`;
+
+// ---------- Offene Posten / Export ----------
+const zahlbar = offene.filter(b => b.brutto != null && b.zahlung && b.zahlung.iban);
+const openBox = document.getElementById("open-table");
+if (zahlbar.length) {
+  openBox.innerHTML = `<table><thead><tr>
+      <th>Fällig</th><th>Empfänger</th><th>Verwendungszweck</th><th class="num">Betrag</th></tr></thead><tbody>` +
+    zahlbar.map(b => `<tr>
+      <td>${deDate(b.zahlung.faellig) || "–"}</td>
+      <td class="v-name">${esc(b.zahlung.empfaenger || b.lieferant)}</td>
+      <td>${esc(b.zahlung.referenz || (b.lieferant + " " + (b.belegnr || "")))}</td>
+      <td class="num">${eur(b.brutto)} ${esc(b.waehrung)}</td></tr>`).join("") +
+    `</tbody></table>`;
+} else {
+  openBox.innerHTML = `<p style="margin:0; color:var(--muted); font-size:14px;">Aktuell gibt es keine offene Rechnung, die per Überweisung zu zahlen wäre – deine Lieferanten buchen automatisch ab. Sobald eine Rechnung mit Bankverbindung eintrifft, erscheint sie hier und die Exportdatei ist einen Klick entfernt.</p>`;
+}
+
+const ibanInput = document.getElementById("iban");
+ibanInput.value = localStorage.getItem("bw_iban") || CFG.auftraggeber_iban || "";
+ibanInput.addEventListener("input", () => localStorage.setItem("bw_iban", ibanInput.value.trim()));
+
+function download(name, content, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" === content[0] ? content : content], { type }));
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+const today = L.stand;
+const nb = n => n.toFixed(2);
+const deNum = n => n == null ? "" : n.toLocaleString("de-AT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const xesc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+function sepaXml() {
+  const iban = ibanInput.value.replace(/\s/g, "");
+  const total = zahlbar.reduce((s, b) => s + b.brutto, 0);
+  const msgId = `BLICKWINKEL-${today}`;
+  const txs = zahlbar.map((b, i) => {
+    const z = b.zahlung, zweck = (z.referenz || `${b.lieferant} ${b.belegnr || ""}`).trim().slice(0, 140);
+    return `<CdtTrfTxInf><PmtId><EndToEndId>${xesc(b.belegnr || "OP-" + (i + 1))}</EndToEndId></PmtId>` +
+      `<Amt><InstdAmt Ccy="${xesc(b.waehrung || "EUR")}">${nb(b.brutto)}</InstdAmt></Amt>` +
+      (z.bic ? `<CdtrAgt><FinInstnId><BIC>${xesc(z.bic)}</BIC></FinInstnId></CdtrAgt>` : "") +
+      `<Cdtr><Nm>${xesc(z.empfaenger || b.lieferant)}</Nm></Cdtr>` +
+      `<CdtrAcct><Id><IBAN>${xesc(z.iban.replace(/\s/g, ""))}</IBAN></Id></CdtrAcct>` +
+      `<RmtInf><Ustrd>${xesc(zweck)}</Ustrd></RmtInf></CdtTrfTxInf>`;
+  }).join("");
+  return `<?xml version="1.0" encoding="UTF-8"?>` +
+    `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">` +
+    `<CstmrCdtTrfInitn><GrpHdr><MsgId>${xesc(msgId)}</MsgId><CreDtTm>${today}T08:00:00</CreDtTm>` +
+    `<NbOfTxs>${zahlbar.length}</NbOfTxs><CtrlSum>${nb(total)}</CtrlSum>` +
+    `<InitgPty><Nm>${xesc(CFG.auftraggeber_name)}</Nm></InitgPty></GrpHdr>` +
+    `<PmtInf><PmtInfId>${xesc(msgId)}-1</PmtInfId><PmtMtd>TRF</PmtMtd>` +
+    `<NbOfTxs>${zahlbar.length}</NbOfTxs><CtrlSum>${nb(total)}</CtrlSum>` +
+    `<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf><ReqdExctnDt>${today}</ReqdExctnDt>` +
+    `<Dbtr><Nm>${xesc(CFG.auftraggeber_name)}</Nm></Dbtr>` +
+    `<DbtrAcct><Id><IBAN>${xesc(iban)}</IBAN></Id></DbtrAcct>` +
+    `<DbtrAgt><FinInstnId/></DbtrAgt><ChrgBr>SLEV</ChrgBr>${txs}</PmtInf></CstmrCdtTrfInitn></Document>`;
+}
+
+function csvLine(cells) {
+  return cells.map(c => {
+    c = c == null ? "" : String(c);
+    return /[;"\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c;
+  }).join(";");
+}
+
+const note = document.getElementById("export-note");
+const btnSepa = document.getElementById("btn-sepa");
+const btnUebCsv = document.getElementById("btn-ueb-csv");
+function refreshButtons() {
+  const iban = ibanInput.value.replace(/\s/g, "");
+  btnSepa.disabled = !zahlbar.length || iban.length < 15;
+  btnUebCsv.disabled = !zahlbar.length;
+  note.textContent = !zahlbar.length
+    ? "Kein Export nötig – keine per Überweisung zahlbaren Posten."
+    : (iban.length < 15 ? "IBAN eintragen, dann ist die SEPA-Datei freigeschaltet." :
+       `${zahlbar.length} Überweisung(en) · gesamt ${eur(zahlbar.reduce((s, b) => s + b.brutto, 0))} €`);
+}
+ibanInput.addEventListener("input", refreshButtons);
+refreshButtons();
+
+btnSepa.addEventListener("click", () => download(`sepa-infinity-${today}.xml`, sepaXml(), "application/xml"));
+btnUebCsv.addEventListener("click", () => {
+  const rows = [csvLine(["Auftraggeber-IBAN", "Empfängername", "Empfänger-IBAN", "Empfänger-BIC", "Betrag", "Währung", "Verwendungszweck", "Durchführungsdatum"])];
+  for (const b of zahlbar) rows.push(csvLine([
+    ibanInput.value.replace(/\s/g, ""), b.zahlung.empfaenger || b.lieferant, b.zahlung.iban,
+    b.zahlung.bic || "", deNum(b.brutto), b.waehrung || "EUR",
+    b.zahlung.referenz || `${b.lieferant} ${b.belegnr || ""}`.trim(), deDate(today),
+  ]));
+  download(`ueberweisungen-${today}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
+});
+
+// ---------- Chart ----------
+const byMonth = new Map();
+for (const b of eurBekannt) {
+  const k = b.belegdatum.slice(0, 7);
+  byMonth.set(k, (byMonth.get(k) || 0) + b.brutto);
+}
+const months = [...byMonth.keys()].sort();
+const maxV = Math.max(...byMonth.values(), 1);
+document.getElementById("chart").innerHTML = months.map(k => {
+  const v = byMonth.get(k), h = Math.max(2, Math.round(v / maxV * 130));
+  return `<div class="bar-col" title="${MONATE[+k.slice(5) - 1]} ${k.slice(0, 4)}: ${eur(v)} €">
+    <div class="bar-val">${eur(v)}</div>
+    <div class="bar" style="height:${h}px"></div>
+    <div class="bar-lbl">${MONATE[+k.slice(5) - 1]}</div></div>`;
+}).join("");
+document.getElementById("chart-sub").textContent = "Summen in EUR aus Belegen mit bekanntem Betrag.";
+document.getElementById("chart-note").textContent =
+  `Nicht enthalten: ${ohneBetrag} Belege, deren Betrag nur im PDF steht (v. a. Google Ads / Google Cloud). ` +
+  `Erkannte Google-Zahlungen im Zeitraum: ${eur(L.zahlungen.reduce((s, z) => s + z.betrag, 0))} €.`;
+
+// ---------- Belegliste ----------
+const belegChip = b =>
+  b.beleg_da === "ja" ? "" :
+  b.beleg_da === "nein" ? `<span class="chip fehlt">Beleg fehlt</span>` :
+  `<span class="chip pruefen">Beleg prüfen</span>`;
+let rows = "", lastMonth = "";
+for (const b of belege.slice().reverse()) {
+  const m = b.belegdatum.slice(0, 7);
+  if (m !== lastMonth) {
+    lastMonth = m;
+    const mb = belege.filter(x => x.belegdatum.startsWith(m) && x.brutto != null && x.waehrung === "EUR");
+    const ms = mb.reduce((s, x) => s + x.brutto, 0);
+    const mAll = belege.filter(x => x.belegdatum.startsWith(m)).length;
+    rows += `<tr class="month"><td colspan="6">${MONATE[+m.slice(5) - 1]} ${m.slice(0, 4)}
+      <span class="msum">${mAll} Belege · ${eur(ms)} € erfasst</span></td></tr>`;
+  }
+  const s = STATUS[b.status] || STATUS.bezahlt;
+  rows += `<tr>
+    <td class="num">${deDate(b.belegdatum)}</td>
+    <td><div class="v-name">${esc(b.lieferant)}</div><div class="v-desc">${esc(b.beschreibung || "")}</div>
+        ${b.hinweis ? `<div class="hint">${esc(b.hinweis)}</div>` : ""}</td>
+    <td class="belegnr">${esc(b.belegnr || "–")}</td>
+    <td class="num">${b.brutto != null ? eur(b.brutto) + " " + esc(b.waehrung) : "<span class='hint'>im PDF</span>"}</td>
+    <td><span class="chip ${s.cls}">${s.txt}</span> ${belegChip(b)}</td>
+    <td><a href="${mail(b.gmail_thread)}" target="_blank" rel="noopener">E-Mail ↗</a></td></tr>`;
+}
+document.getElementById("ledger-table").innerHTML =
+  `<table><thead><tr><th class="num">Datum</th><th>Lieferant</th><th>Beleg-Nr.</th><th class="num">Brutto</th><th>Status</th><th>Quelle</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+document.getElementById("btn-belegliste").addEventListener("click", () => {
+  const rows = [csvLine(["Belegdatum", "Lieferant", "Belegnummer", "Beschreibung", "Netto", "USt-Satz", "USt", "Brutto", "Währung", "Zahlart", "Status", "Beleg vorhanden", "Hinweis", "Anhang", "E-Mail-Link"])];
+  for (const b of belege) rows.push(csvLine([
+    deDate(b.belegdatum), b.lieferant, b.belegnr, b.beschreibung,
+    deNum(b.netto), b.ust_satz != null ? b.ust_satz + " %" : "", deNum(b.ust), deNum(b.brutto),
+    b.waehrung, b.zahlart, (STATUS[b.status] || {}).txt || b.status,
+    b.beleg_da === "ja" ? "ja" : b.beleg_da === "nein" ? "NEIN" : "prüfen",
+    b.hinweis, (b.anhang || []).join(", "), mail(b.gmail_thread),
+  ]));
+  download(`belegliste-${CFG.jahr}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
+});
+
+document.getElementById("foot-legend").innerHTML =
+  `Status: <span class="chip bezahlt">bezahlt</span> abgebucht/quittiert · ` +
+  `<span class="chip offen">offen</span> Zahlung nötig · ` +
+  `<span class="chip klaeren">klären</span> Zahlung unklar · ` +
+  `<span class="chip fehlt">Beleg fehlt</span> PDF für Buchhalter besorgen · ` +
+  `<span class="chip pruefen">Beleg prüfen</span> PDF vermutlich per Link abrufbar.`;
+</script>

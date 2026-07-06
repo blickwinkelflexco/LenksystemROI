@@ -1,3 +1,16 @@
+# BLICKWINKEL Werkzeuge
+
+## 📥 Buchhaltungs-System (`buchhaltung/`)
+
+Automatische Rechnungs-Erfassung aus dem Posteingang `blickwinkel.pro@gmail.com`:
+Beleg-Ledger für den Buchhalter, Dashboard mit offenen Positionen und Export für
+Raiffeisen INFINITY (SEPA pain.001-XML + CSV). Betrieb und Datenmodell sind in
+[`buchhaltung/SYSTEM.md`](buchhaltung/SYSTEM.md) beschrieben; alle Exporte werden
+mit `python3 buchhaltung/scripts/generate.py` aus `buchhaltung/data/ledger.json`
+erzeugt.
+
+---
+
 # 🚜 ROI-Rechner BLICKWINKEL | Digital Farming Efficiency Analyzer
 
 ![Version](https://img.shields.io/badge/Version-14.0-emerald)
