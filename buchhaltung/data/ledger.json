@@ -403,6 +403,7 @@
     {"datum": "2026-06-15", "lieferant": "Google Ads", "betrag": 500.00, "waehrung": "EUR", "gmail_thread": "19ecaa3df5441f2d"}
   ],
   "ereignisse": [
+    {"datum": "2026-07-08", "typ": "notiz", "lieferant": "Josephinum Research", "gmail_thread": "", "hinweis": "AR 633 (12.205 €) laut Michael bezahlt. OP-Differenz von 295 € zur LBG-Liste (12.500 €) bleibt für Gündüz zur Zuordnung offen."},
     {"datum": "2026-05-01", "typ": "zahlung_abgelehnt", "lieferant": "Google Ads", "gmail_thread": "19de4e593b79b7ec", "hinweis": "Mastercard •0722 abgelehnt"},
     {"datum": "2026-05-14", "typ": "zahlung_abgelehnt", "lieferant": "Google Ads", "gmail_thread": "19e29d27d60e27ac", "hinweis": "Mastercard •0722 abgelehnt"},
     {"datum": "2026-05-25", "typ": "zahlung_abgelehnt", "lieferant": "Google Ads", "gmail_thread": "19e5e6db443f15c5", "hinweis": "Mastercard •0722 abgelehnt"},

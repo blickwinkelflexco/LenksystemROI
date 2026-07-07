@@ -70,13 +70,14 @@ def write_csv(path, header, rows):
 
 def belegliste(ledger, config):
     header = [
-        "Belegdatum", "Lieferant", "Belegnummer", "Beschreibung",
+        "Mandant", "Belegdatum", "Lieferant", "Belegnummer", "Beschreibung",
         "Netto", "USt-Satz", "USt", "Brutto", "Währung",
         "Zahlart", "Status", "Hinweis", "Beleg (PDF)", "E-Mail-Link",
     ]
     rows = []
     for b in sorted(ledger["belege"], key=lambda x: x["belegdatum"]):
         rows.append([
+            b.get("mandant", "Blickwinkel FlexCo"),
             de_date(b["belegdatum"]), b["lieferant"], b.get("belegnr", ""),
             b.get("beschreibung", ""), de_num(b.get("netto")),
             f"{b['ust_satz']} %" if b.get("ust_satz") is not None else "",

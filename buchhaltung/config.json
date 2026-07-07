@@ -6,6 +6,18 @@
   "postfach": "blickwinkel.pro@gmail.com (Posteingang für info@blickwinkel.pro)",
   "auftraggeber_name": "BLICKWINKEL FlexCo",
   "auftraggeber_iban": "AT773403000000456863",
+  "buchhalter_name": "Gündüz",
   "buchhalter_email": "",
+  "uebergabe_modus": "xls_mit_links",
+  "mandanten": {
+    "Blickwinkel_FlexCo": {
+      "standard": true,
+      "quellen": ["blickwinkel.pro@gmail.com", "blickwinkelpro@gmail.com", "info@blickwinkel.pro (Outlook)"]
+    },
+    "Weissauer_Gut": {
+      "beschreibung": "Landwirtschaftlicher Betrieb, strikt getrennt führen",
+      "quellen": ["weissauergut@outlook.com (noch nicht angebunden)"]
+    }
+  },
   "jahr": 2026
 }

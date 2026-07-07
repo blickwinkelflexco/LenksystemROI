@@ -397,7 +397,7 @@ for (const b of belege.slice().reverse()) {
   const s = STATUS[b.status] || STATUS.bezahlt;
   rows += `<tr>
     <td class="num">${deDate(b.belegdatum)}</td>
-    <td><div class="v-name">${esc(b.lieferant)}</div><div class="v-desc">${esc(b.beschreibung || "")}</div>
+    <td><div class="v-name">${esc(b.lieferant)}${b.mandant === "Weissauer_Gut" ? ' <span class="chip pruefen">Weissauer Gut</span>' : ""}</div><div class="v-desc">${esc(b.beschreibung || "")}</div>
         ${b.hinweis ? `<div class="hint">${esc(b.hinweis)}</div>` : ""}</td>
     <td class="belegnr">${esc(b.belegnr || "–")}</td>
     <td class="num">${b.brutto != null ? eur(b.brutto) + " " + esc(b.waehrung) : "<span class='hint'>im PDF</span>"}</td>

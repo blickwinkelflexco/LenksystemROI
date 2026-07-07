@@ -26,9 +26,25 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
   - `zahlungen[]`: erkannte Zahlungsbestätigungen (für Abgleich).
   - `ereignisse[]`: z. B. `zahlung_abgelehnt` (Kartenablehnungen).
 
+## Mandanten (strikt getrennt)
+
+- **Blickwinkel_FlexCo** (Standard): Quellen sind blickwinkel.pro@gmail.com,
+  blickwinkelpro@gmail.com und info@blickwinkel.pro (Outlook/Microsoft 365).
+- **Weissauer_Gut** (Landwirtschaft): eigener Mandant, niemals mit FlexCo
+  mischen. Quelle weissauergut@outlook.com ist noch nicht angebunden –
+  empfohlene Brücke: Weiterleitung buchhaltungsrelevanter Mails an
+  info@blickwinkel.pro mit Betreff-Präfix "[WG]" oder separate Anbindung.
+  Belege dieses Mandanten erhalten im Ledger `"mandant": "Weissauer_Gut"`
+  und laufen in eigene Auswertungszeilen; Zahlungsexporte nie mandantenübergreifend
+  mischen (eigene Datei je Mandant, sobald Weissauer-Posten existieren).
+
 ## Automatischer Lauf (täglich)
 
-1. **Posteingang scannen** (Gmail, nur Zeitraum seit letztem `stand`):
+1. **Posteingänge scannen** (Zeitraum seit letztem `stand`):
+   a) **Gmail** wie unten beschrieben;
+   b) **Outlook (info@blickwinkel.pro)** über den Microsoft-365-Connector
+      (`outlook_email_search`) mit denselben Suchbegriffen – sofern der
+      Connector in der Session verbunden ist; andernfalls im Lauf vermerken.
    - Suchquery: `in:inbox newer_than:3d {subject:Rechnung subject:Invoice subject:Zahlung subject:Mahnung subject:fällig subject:Beleg subject:receipt filename:pdf}`
    - Zweite Query ohne Betreff-Filter für bekannte Absender (paddle, stripe,
      payments-noreply@google.com, digistore24, autodoc, hostinger, openai …).
@@ -55,11 +71,28 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
 8. **Nur bei Handlungsbedarf melden** (neue offene Posten, neue Klärfälle, neue
    fehlende Belege). Sonst still bleiben.
 
-## Monatsübergabe an den Buchhalter (am 1. des Monats)
+## Übergabe an Buchhalter Gündüz (kein automatischer Versand!)
 
-- `exports/belegliste-<jahr>.csv` ist immer aktuell; zusätzlich einen Gmail-Entwurf
-  an `buchhalter_email` (aus config.json, sobald eingetragen) erstellen mit der
-  Monatsliste und den Hinweisen, welche PDFs wo liegen. Entwurf, nicht senden.
+Michael hat entschieden: **keine automatische Übergabe**. Stattdessen:
+
+- Die operative Excel-Liste `_Auswertungen/Buchhaltungsuebersicht_Mandanten.xlsx`
+  im OneDrive (gepflegt vom lokalen System) ist das Übergabedokument. Unsere
+  `exports/belegliste-<jahr>.csv` liefert dieselben Zeilen als Zubringer und
+  enthält je Beleg einen Link.
+- Gündüz lädt fehlende Belege selbst per Link aus der Liste herunter.
+  Voraussetzung (einmalig durch Michael): den OneDrive-Ordner
+  `Buchhaltung/Blickwinkel_FlexCo` für Gündüz freigeben, damit die Beleglinks
+  der Excel-Liste für ihn funktionieren. Gmail-Links in unserer CSV sind nur
+  für Michael nutzbar – bei Belegen, die nur als E-Mail-Anhang existieren,
+  gehört das PDF daher in die OneDrive-Ablage (lokaler Eingangslauf).
+- KEINE Mail-Entwürfe an den Buchhalter erstellen, solange
+  `uebergabe_modus` = `xls_mit_links` ist.
+
+## Offene Klärfälle (nicht vergessen)
+
+- Josephinum Research AR 633: 12.205 € laut Michael bezahlt; Differenz 295 €
+  zur LBG-OP-Liste (12.500 €) für Gündüz zur Zuordnung dokumentiert
+  (siehe ledger.json → ereignisse).
 
 ## Bekannte Quellen (Stand Juli 2026)
 
