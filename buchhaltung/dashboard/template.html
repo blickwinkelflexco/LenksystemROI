@@ -152,7 +152,7 @@
 
   <section>
     <h2>Zahlung &amp; Export für Raiffeisen INFINITY</h2>
-    <p class="sub">Offene Posten mit Bankverbindung landen hier als fertige Überweisungsdatei. INFINITY importiert Zahlungen als SEPA-Datei (XML, pain.001) – die CSV gibt es zusätzlich als Kontrollliste.</p>
+    <p class="sub">Offene Posten mit Bankverbindung landen hier als fertige Importdatei: CSV im offiziellen INFINITY-Überweisungsformat (Mustervorlage, 13 Spalten) – in INFINITY unter Zahlungen → Importieren einspielen, prüfen, zeichnen. Alternativ als SEPA-XML (pain.001).</p>
     <div class="card">
       <div class="tbl-box" id="open-table"></div>
       <div class="export-grid">
@@ -160,8 +160,8 @@
           <label for="iban">Auftraggeber-IBAN (wird nur lokal gespeichert)</label>
           <input id="iban" placeholder="AT.. .... .... .... ...." autocomplete="off" spellcheck="false">
         </div>
-        <button class="btn" id="btn-sepa">SEPA-Datei für INFINITY</button>
-        <button class="btn secondary" id="btn-ueb-csv">Überweisungen als CSV</button>
+        <button class="btn" id="btn-ueb-csv">CSV für INFINITY</button>
+        <button class="btn secondary" id="btn-sepa">SEPA-XML (Alternative)</button>
       </div>
       <div class="export-note" id="export-note"></div>
     </div>
@@ -331,10 +331,10 @@ const btnUebCsv = document.getElementById("btn-ueb-csv");
 function refreshButtons() {
   const iban = ibanInput.value.replace(/\s/g, "");
   btnSepa.disabled = !zahlbar.length || iban.length < 15;
-  btnUebCsv.disabled = !zahlbar.length;
+  btnUebCsv.disabled = !zahlbar.length || iban.length < 15;
   note.textContent = !zahlbar.length
     ? "Kein Export nötig – keine per Überweisung zahlbaren Posten."
-    : (iban.length < 15 ? "IBAN eintragen, dann ist die SEPA-Datei freigeschaltet." :
+    : (iban.length < 15 ? "IBAN eintragen, dann sind die Importdateien freigeschaltet." :
        `${zahlbar.length} Überweisung(en) · gesamt ${eur(zahlbar.reduce((s, b) => s + b.brutto, 0))} €`);
 }
 ibanInput.addEventListener("input", refreshButtons);
@@ -342,13 +342,20 @@ refreshButtons();
 
 btnSepa.addEventListener("click", () => download(`sepa-infinity-${today}.xml`, sepaXml(), "application/xml"));
 btnUebCsv.addEventListener("click", () => {
-  const rows = [csvLine(["Auftraggeber-IBAN", "Empfängername", "Empfänger-IBAN", "Empfänger-BIC", "Betrag", "Währung", "Verwendungszweck", "Durchführungsdatum"])];
+  // Offizielles INFINITY-Überweisungsformat (CSV-Mustervorlage, 13 Spalten)
+  const rows = [csvLine(["Durchführungsdatum", "Empfänger Name", "Empfänger Adresse", "Empfänger Ort",
+    "Empfänger IBAN", "Empfänger BIC", "Betrag in EUR", "Zahlungsreferenz/Verwendungszweck",
+    "Auftraggeberinformation", "Geschäftsvorfallcode", "Dringlichkeit", "Auftraggeber IBAN",
+    "Abweichender Auftraggeber"])];
   for (const b of zahlbar) rows.push(csvLine([
-    ibanInput.value.replace(/\s/g, ""), b.zahlung.empfaenger || b.lieferant, b.zahlung.iban,
-    b.zahlung.bic || "", deNum(b.brutto), b.waehrung || "EUR",
-    b.zahlung.referenz || `${b.lieferant} ${b.belegnr || ""}`.trim(), deDate(today),
+    deDate(today), (b.zahlung.empfaenger || b.lieferant).slice(0, 70),
+    (b.zahlung.adresse || "").slice(0, 35), (b.zahlung.ort || "").slice(0, 35),
+    b.zahlung.iban.replace(/\s/g, ""), b.zahlung.bic || "",
+    b.brutto.toFixed(2).replace(".", ","),
+    (b.zahlung.referenz || `${b.lieferant} ${b.belegnr || ""}`.trim()).slice(0, 140),
+    "", "", "", ibanInput.value.replace(/\s/g, ""), "",
   ]));
-  download(`ueberweisungen-${today}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
+  download(`Raiffeisen_Infinity_Ueberweisungen_${today}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
 });
 
 // ---------- Chart ----------

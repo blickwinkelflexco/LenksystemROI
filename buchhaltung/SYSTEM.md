@@ -75,6 +75,34 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
 | info@copteruni.com / notify.thinkific.com | Copteruni Kurse | Reverse Charge (UID ATU82873525) |
 | team@info.hostinger.com | Hostinger | Rechnung nur im Kundenbereich |
 
+## Kontext: OneDrive-Ablage und Steuerberater (Stand Juli 2026)
+
+Die maßgebliche Belegablage liegt in OneDrive for Business:
+`3 BUCHHALTUNG BLICKWINKEL/Buchhaltung/` mit zwei Mandanten
+(`Blickwinkel_FlexCo/`, `Weissauer_Gut/`), Jahres-/Monatsordnern,
+`_Eingang/`, `_Manuelle_Pruefung/` und `_Auswertungen/`. Dort existiert ein
+lokales Windows-System (`_System/`, Prozess in `BUCHHALTUNG_PROZESS.md`) mit
+täglichen Läufen (Gmail 07:05, Outlook 07:15, Eingang 07:30/07:45,
+Monatsbericht am 1.). Steuerberater ist die LBG (OP-Listen/Evidenzkonto);
+sevDesk dient als zusätzliches Belegarchiv (Ein-/Ausgangsrechnungen).
+
+Namenskonvention der Ablage (auch für unsere Hinweise übernehmen):
+`Lieferant_JJJJ-MM-TT_Betrag_Währung_Rechnungsnummer_Kategorie.pdf`
+
+**Raiffeisen INFINITY importiert Überweisungen auch als CSV** – offizielles
+Format laut Mustervorlage (13 Spalten, Semikolon, `DD.MM.YYYY`, Betrag mit
+Komma, Pflicht: Durchführungsdatum, Empfänger Name, Empfänger IBAN, Betrag,
+Verwendungszweck, Auftraggeber IBAN). Unsere Exporte
+(`exports/Raiffeisen_Infinity_Ueberweisungen.csv` und der Dashboard-Download)
+folgen exakt diesem Format; SEPA-XML (pain.001) bleibt als Alternative.
+Referenz im OneDrive: `Buchhaltung/_System/raiffeisen_infinity_format.json`.
+
+Arbeitsteilung: Dieses Cloud-System ist die Wache über den Gmail-Posteingang
+(erkennen, labeln, Ledger, Dashboard, Zahlungsdateien). Die lokale Automation
+verarbeitet PDFs/Scans in die OneDrive-Ablage. Fehlende Belege, die hier
+auffallen, werden mit Hinweis auf den Zielordner in der OneDrive-Struktur
+gemeldet.
+
 ## Wiederherstellung / Handbetrieb
 
 - Alles neu generieren: `python3 buchhaltung/scripts/generate.py`

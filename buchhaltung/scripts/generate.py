@@ -115,19 +115,26 @@ def zahlbare_posten(ledger):
 
 
 def raiffeisen_csv(posten, config):
-    header = ["Auftraggeber-IBAN", "Empfängername", "Empfänger-IBAN", "Empfänger-BIC",
-              "Betrag", "Währung", "Verwendungszweck", "Zahlungsreferenz", "Durchführungsdatum"]
+    """Offizielles Raiffeisen-INFINITY-Importformat für Überweisungen
+    (13 Spalten laut CSV-Mustervorlage; Semikolon, DD.MM.YYYY, Betrag mit Komma)."""
+    header = ["Durchführungsdatum", "Empfänger Name", "Empfänger Adresse", "Empfänger Ort",
+              "Empfänger IBAN", "Empfänger BIC", "Betrag in EUR",
+              "Zahlungsreferenz/Verwendungszweck", "Auftraggeberinformation",
+              "Geschäftsvorfallcode", "Dringlichkeit", "Auftraggeber IBAN",
+              "Abweichender Auftraggeber"]
     exec_date = de_date((date.today() + timedelta(days=1)).isoformat())
     rows = []
     for b in posten:
         z = b["zahlung"]
+        zweck = (z.get("referenz") or f"{b['lieferant']} {b.get('belegnr', '')}".strip())[:140]
         rows.append([
-            config.get("auftraggeber_iban", ""), z.get("empfaenger", b["lieferant"]),
-            z["iban"], z.get("bic", ""), de_num(b["brutto"]), b.get("waehrung", "EUR"),
-            z.get("referenz") or f"{b['lieferant']} {b.get('belegnr', '')}".strip(),
-            z.get("zahlungsreferenz", ""), exec_date,
+            exec_date, z.get("empfaenger", b["lieferant"])[:70],
+            z.get("adresse", "")[:35], z.get("ort", "")[:35],
+            z["iban"].replace(" ", ""), z.get("bic", ""),
+            f"{b['brutto']:.2f}".replace(".", ","), zweck,
+            "", "", "", config.get("auftraggeber_iban", ""), "",
         ])
-    write_csv(EXPORTS / "raiffeisen-ueberweisungen.csv", header, rows)
+    write_csv(EXPORTS / "Raiffeisen_Infinity_Ueberweisungen.csv", header, rows)
 
 
 def x(s):
