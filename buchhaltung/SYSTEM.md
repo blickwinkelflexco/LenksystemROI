@@ -62,13 +62,20 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
    - `Buchhaltung/Beleg` auf jeden erfassten Thread,
    - `Buchhaltung/Offen`, `Buchhaltung/Klären`, `Buchhaltung/Beleg-fehlt` je Status;
    - Labels bei Statuswechsel aktualisieren. Labels ggf. mit `create_label` anlegen.
-5. **Generieren**: `python3 buchhaltung/scripts/generate.py`
+5. **Odoo-Abgleich** (nur wenn Umgebungsvariable `ODOO_KEY` gesetzt ist):
+   `ODOO_URL/DB/LOGIN` aus config.json → Env exportieren, dann
+   `python3 buchhaltung/scripts/odoo_abgleich.py` (Standard: letzte 90 Tage).
+   Odoo (blickwinkel.odoo.com) enthält die synchronisierten Bankbewegungen
+   (Raiffeisen-Konto) und ist die Wahrheit für "wurde bezahlt". NUR_ODOO-Zeilen
+   mit relevantem Betrag (> 50 €) auf fehlende Belege prüfen und ggf. als neue
+   Ledger-Einträge/Klärfälle aufnehmen; NUR_LEDGER heißt: noch nicht gebucht.
+6. **Generieren**: `python3 buchhaltung/scripts/generate.py`
    (baut Belegliste-CSV, offene-posten.csv, Raiffeisen-CSV, SEPA-XML, Dashboard).
-6. **Dashboard veröffentlichen**: `buchhaltung/dashboard/index.html` als Artifact
+7. **Dashboard veröffentlichen**: `buchhaltung/dashboard/index.html` als Artifact
    auf dieselbe URL redeployen (gleicher Dateipfad, gleiches Favicon 📥).
-7. **Committen & pushen** auf `claude/invoice-extraction-accounting-si7mr9`
+8. **Committen & pushen** auf `claude/invoice-extraction-accounting-si7mr9`
    (Message: `Buchhaltung: Lauf YYYY-MM-DD – n neue Belege`).
-8. **Nur bei Handlungsbedarf melden** (neue offene Posten, neue Klärfälle, neue
+9. **Nur bei Handlungsbedarf melden** (neue offene Posten, neue Klärfälle, neue
    fehlende Belege). Sonst still bleiben.
 
 ## Übergabe an Buchhalter Gündüz (kein automatischer Versand!)

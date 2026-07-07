@@ -19,5 +19,11 @@
       "quellen": ["weissauergut@outlook.com (noch nicht angebunden)"]
     }
   },
+  "odoo": {
+    "url": "https://blickwinkel.odoo.com",
+    "db": "blickwinkel",
+    "login": "info@blickwinkel.pro",
+    "hinweis": "API-Schlüssel NIE hier eintragen – nur als Umgebungsvariable ODOO_KEY"
+  },
   "jahr": 2026
 }
