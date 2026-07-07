@@ -14,14 +14,45 @@ Ergebnis: exports/odoo-abgleich.csv mit drei Abschnitten:
   NUR_ODOO  – Buchung in Odoo ohne Beleg im Ledger (= Beleg fehlt / übersehen)
   NUR_LEDGER– Beleg im Ledger ohne Odoo-Buchung (= noch nicht gebucht)
 """
+import http.client
 import json
 import os
+import ssl
 import sys
+import urllib.parse
 import xmlrpc.client
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
+
+
+class _ProxyTransport(xmlrpc.client.SafeTransport):
+    """HTTPS über einen HTTP-Proxy (CONNECT-Tunnel), da xmlrpc.client
+    die Umgebungsvariablen HTTPS_PROXY/https_proxy nicht auswertet."""
+
+    def __init__(self, proxy_host, proxy_port, **kw):
+        super().__init__(**kw)
+        self._proxy = (proxy_host, proxy_port)
+
+    def make_connection(self, host):
+        if self._connection and host == self._connection[0]:
+            return self._connection[1]
+        chost, self._extra_headers, _ = self.get_host_info(host)
+        ctx = self.context or ssl.create_default_context()
+        conn = http.client.HTTPSConnection(*self._proxy, context=ctx)
+        conn.set_tunnel(chost, 443)
+        self._connection = host, conn
+        return conn
+
+
+def _server_proxy(endpoint):
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    if proxy:
+        p = urllib.parse.urlparse(proxy)
+        return xmlrpc.client.ServerProxy(
+            endpoint, transport=_ProxyTransport(p.hostname, p.port))
+    return xmlrpc.client.ServerProxy(endpoint)
 
 
 def verbinden():
@@ -31,11 +62,11 @@ def verbinden():
     key = os.environ.get("ODOO_KEY", "")
     if not all([url, db, login, key]):
         sys.exit("Fehlende Zugangsdaten: ODOO_URL, ODOO_DB, ODOO_LOGIN, ODOO_KEY setzen.")
-    common = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/common")
+    common = _server_proxy(f"{url}/xmlrpc/2/common")
     uid = common.authenticate(db, login, key, {})
     if not uid:
         sys.exit("Odoo-Anmeldung fehlgeschlagen (Login/Key prüfen).")
-    models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
+    models = _server_proxy(f"{url}/xmlrpc/2/object")
     print(f"Verbunden mit {url} (db={db}, uid={uid})")
     return db, uid, key, models
 
