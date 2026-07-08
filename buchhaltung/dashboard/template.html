@@ -145,9 +145,15 @@
   <div class="kpis" id="kpis"></div>
 
   <section id="sec-todo">
-    <h2>Zu erledigen</h2>
-    <p class="sub">Alles, was Geld oder den Buchhalter betrifft und nicht von allein passiert.</p>
+    <h2>Zahlungen &amp; Klärfälle</h2>
+    <p class="sub">Alles, wo DU aktiv werden musst: überweisen, Zahlungsmittel prüfen oder eine Unklarheit klären. Automatisch abgebuchte Abos (Google, Paddle, Anthropic …) stehen hier nur, wenn eine Abbuchung tatsächlich fehlgeschlagen ist – nicht routinemäßig.</p>
     <div class="todo" id="todo"></div>
+  </section>
+
+  <section id="sec-belege-fehlen">
+    <h2>Belege nachreichen</h2>
+    <p class="sub">Bereits automatisch bezahlt (Kreditkarte/Lastschrift) – hier fehlt nur das PDF für den Buchhalter, keine Zahlung nötig.</p>
+    <div class="todo" id="belege-fehlen"></div>
   </section>
 
   <section>
@@ -199,7 +205,7 @@
   </section>
 
   <footer>
-    <p><strong>So funktioniert es:</strong> Der Posteingang wird automatisch nach Rechnungen, Belegen und Zahlungsereignissen durchsucht. Jeder Fund landet in der Belegliste; was Handlung braucht (offene Zahlung, fehlender Beleg, abgelehnte Karte), erscheint oben unter „Zu erledigen“. Die Belegliste-CSV ist für die Übergabe an den Buchhalter gedacht, die SEPA-Datei für den Import in Raiffeisen INFINITY (Zahlungen → Importieren → Datei wählen → prüfen → zeichnen).</p>
+    <p><strong>So funktioniert es:</strong> Der Posteingang wird automatisch nach Rechnungen, Belegen und Zahlungsereignissen durchsucht. Jeder Fund landet in der Belegliste. Was eine aktive Zahlung oder Klärung braucht, steht oben unter „Zahlungen &amp; Klärfälle“ – automatisch abgebuchte Abos (Google, Paddle, Anthropic &amp; Co.) landen dort nur bei einer tatsächlich fehlgeschlagenen Abbuchung, nie routinemäßig. Fehlt nur das PDF zu einem bereits bezahlten Abo, steht es separat unter „Belege nachreichen“ – ohne Handlungsdruck. Die Belegliste-CSV ist für die Übergabe an den Buchhalter gedacht, die SEPA-Datei für den Import in Raiffeisen INFINITY (Zahlungen → Importieren → Datei wählen → prüfen → zeichnen).</p>
     <p id="foot-legend"></p>
   </footer>
 </div>
@@ -244,10 +250,10 @@ document.getElementById("kpis").innerHTML = `
     <div class="value">${klaeren.length}</div>
     <div class="note">${klaeren.length ? "Zahlung unklar – prüfen" : "alles eindeutig"}</div>
   </div>
-  <div class="kpi ${fehlend.length ? "alert" : ""}">
-    <div class="label">Fehlende Belege</div>
+  <div class="kpi">
+    <div class="label">Belege nachreichen</div>
     <div class="value">${fehlend.length}</div>
-    <div class="note">PDF für Buchhalter besorgen</div>
+    <div class="note">bereits bezahlt, PDF für Buchhalter besorgen</div>
   </div>
   <div class="kpi">
     <div class="label">Ausgaben ${CFG.jahr}</div>
@@ -255,15 +261,11 @@ document.getElementById("kpis").innerHTML = `
     <div class="note">${belege.length} Belege · ${ohneBetrag} davon Betrag nur im PDF</div>
   </div>`;
 
-// ---------- To-do ----------
+// ---------- Zahlungen & Klärfälle (echte Aktion nötig) ----------
 const todos = [];
 for (const b of klaeren) todos.push({
   cls: "klaeren", chip: "klären", title: `${b.lieferant} – Rechnung ${b.belegnr}`,
   note: b.hinweis, href: src(b),
-});
-for (const b of fehlend.filter(x => x.status !== "klaeren")) todos.push({
-  cls: "fehlt", chip: "Beleg fehlt", title: `${b.lieferant}${b.belegnr ? " – " + b.belegnr : ""} (${deDate(b.belegdatum)})`,
-  note: b.hinweis || "Rechnungs-PDF besorgen und ablegen", href: src(b),
 });
 for (const b of offene) todos.push({
   cls: "offen", chip: "offen", title: `${b.lieferant} – ${eur(b.brutto)} ${b.waehrung}`,
@@ -275,7 +277,18 @@ document.getElementById("todo").innerHTML = todos.length
       <div class="t-main"><div class="t-title">${esc(t.title)}</div><div class="t-note">${esc(t.note)}</div></div>
       ${t.href ? `<a class="t-link" href="${t.href}" target="_blank" rel="noopener">E-Mail öffnen ↗</a>` : ""}
     </div>`).join("")
-  : `<div class="todo-item"><span class="chip bezahlt">erledigt</span><div class="t-main"><div class="t-title">Nichts offen.</div><div class="t-note">Alle erkannten Belege sind bezahlt und zugeordnet.</div></div></div>`;
+  : `<div class="todo-item"><span class="chip bezahlt">erledigt</span><div class="t-main"><div class="t-title">Nichts offen.</div><div class="t-note">Keine Zahlung und kein Klärfall wartet auf dich.</div></div></div>`;
+
+// ---------- Belege nachreichen (bezahlt, PDF fehlt – keine Zahlung nötig) ----------
+const belegeFehlen = fehlend.filter(x => x.status !== "klaeren");
+document.getElementById("belege-fehlen").innerHTML = belegeFehlen.length
+  ? belegeFehlen.map(b => `<div class="todo-item">
+      <span class="chip fehlt">Beleg fehlt</span>
+      <div class="t-main"><div class="t-title">${esc(b.lieferant)}${b.belegnr ? " – " + esc(b.belegnr) : ""} (${deDate(b.belegdatum)})</div>
+        <div class="t-note">${esc(b.hinweis || "Rechnungs-PDF besorgen und ablegen")}</div></div>
+      ${src(b) ? `<a class="t-link" href="${src(b)}" target="_blank" rel="noopener">E-Mail öffnen ↗</a>` : ""}
+    </div>`).join("")
+  : `<div class="todo-item"><span class="chip bezahlt">erledigt</span><div class="t-main"><div class="t-title">Nichts offen.</div><div class="t-note">Alle Belege liegen vor.</div></div></div>`;
 
 // ---------- Offene Posten / Export ----------
 const zahlbar = offene.filter(b => b.brutto != null && b.zahlung && b.zahlung.iban);

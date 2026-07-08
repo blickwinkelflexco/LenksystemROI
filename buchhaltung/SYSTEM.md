@@ -55,8 +55,24 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
      Verwendungszweck abgleichen) – viele Shop-Rechnungen sind bei Bestellung
      schon bezahlt, auch wenn die Rechnung später per Mail kommt.
    - **Odoo-Bank** (sobald ODOO_KEY gesetzt): Bankbewegungen abfragen.
-   - **Immer automatisch abgebucht, NIE als offen führen**: Google Ads/Cloud
-     (nur Kreditkarte!), Paddle, Stripe/Anthropic, OpenAI, OpenRouter, Abos.
+   - **Immer automatisch abgebucht, NIE als offen führen**: Google Ads/Cloud,
+     Paddle, Stripe/Anthropic, OpenAI, OpenRouter, Abos. Diese Vendoren ziehen
+     IMMER selbst ab (Kreditkarte ODER SEPA-Lastschrift vom Bankkonto) –
+     Michael tätigt hier nie selbst eine Zahlung. Eine Kartenablehnung macht
+     daraus KEIN "offen/klären" für eine Überweisung.
+   - **Google Ads/Cloud speziell – vor jedem "klaeren" wegen Kartenablehnung
+     prüfen**: Michael hat im Mai/Juni 2026 nach wiederholten Kartenablehnungen
+     ein Bankkonto (•6863) bei Google hinterlegt; seit Bestätigung (03.06.2026)
+     läuft die Abbuchung per SEPA-Lastschrift automatisch. Regel: Eine
+     "abgelehnt"-Mail nur dann als aktueller Klärfall behandeln, wenn NACH
+     dieser Mail keine der folgenden Bestätigungen mehr kam: "Zahlung erhalten",
+     "Bankkonto bestätigt" oder eine nachfolgende "Bankkonto wird bald
+     belastet"-Vorankündigung ohne erneute Ablehnung danach. Gibt es eine
+     davon, ist der Fall erledigt → `status: bezahlt`, Zahlart als
+     SEPA-Lastschrift/Kreditkarte automatisch vermerken. Nur bei einer ECHT
+     letzten, unwidersprochenen Ablehnung (keine Bestätigung danach) bleibt es
+     ein Klärfall – und selbst dann ist die richtige Aktion "Zahlungsmittel bei
+     Google aktualisieren", nicht "überweisen".
    `offen` bleibt nur, was nachweislich ohne Zahlungstreffer ist (dann Hinweis
    "kein PayPal-/Bank-Treffer" dazuschreiben) oder angemahnt wurde.
    - Rechnung/Beleg → neuer `belege[]`-Eintrag (Belegdatum, Lieferant, Belegnummer,
