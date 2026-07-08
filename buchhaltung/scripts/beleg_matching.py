@@ -114,11 +114,14 @@ def main():
         # 2) OneDrive-Dateiname: Betrag exakt, Datum ±14 Tage (falls im Namen)
         b_datum = datetime.strptime(b["datum"], "%Y-%m-%d").date()
         kandidaten = [e for e in index if e["betrag"] is not None
+                      and 0.01 < e["betrag"] <= 50000
                       and abs(e["betrag"] - abs(b["betrag"])) <= 0.01]
         passend = [e for e in kandidaten if e["datum"] is None
                    or abs((e["datum"] - b_datum).days) <= 14]
         if passend:
-            e = sorted(passend, key=lambda x: (x["datum"] is None,
+            # Saubere Monatsordner vor _Manuelle_Pruefung, dann Datumsnähe
+            e = sorted(passend, key=lambda x: ("_Manuelle_Pruefung" in x["ordner"],
+                       x["datum"] is None,
                        abs((x["datum"] - b_datum).days) if x["datum"] else 99))[0]
             b["beleg"] = {"typ": "onedrive",
                           "ref": f"{ONEDRIVE_ROOT}\\{e['ordner']}\\{e['datei']}".replace("/", "\\"),
