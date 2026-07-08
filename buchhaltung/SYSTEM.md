@@ -48,7 +48,17 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
    - Suchquery: `in:inbox newer_than:3d {subject:Rechnung subject:Invoice subject:Zahlung subject:Mahnung subject:fällig subject:Beleg subject:receipt filename:pdf}`
    - Zweite Query ohne Betreff-Filter für bekannte Absender (paddle, stripe,
      payments-noreply@google.com, digistore24, autodoc, hostinger, openai …).
-2. **Klassifizieren** je Fund:
+2. **Klassifizieren** je Fund. WICHTIGSTE REGEL – erst Zahlung prüfen, dann Status:
+   Bevor ein Beleg `offen` gesetzt wird, IMMER gegen die Zahlungsquellen prüfen,
+   ob schon bezahlt wurde (Michael zahlt viel per PayPal/Karte/Online):
+   - **PayPal**: `mcp PayPal list_transactions` (Betrag, invoice_id/Bestellnummer,
+     Verwendungszweck abgleichen) – viele Shop-Rechnungen sind bei Bestellung
+     schon bezahlt, auch wenn die Rechnung später per Mail kommt.
+   - **Odoo-Bank** (sobald ODOO_KEY gesetzt): Bankbewegungen abfragen.
+   - **Immer automatisch abgebucht, NIE als offen führen**: Google Ads/Cloud
+     (nur Kreditkarte!), Paddle, Stripe/Anthropic, OpenAI, OpenRouter, Abos.
+   `offen` bleibt nur, was nachweislich ohne Zahlungstreffer ist (dann Hinweis
+   "kein PayPal-/Bank-Treffer" dazuschreiben) oder angemahnt wurde.
    - Rechnung/Beleg → neuer `belege[]`-Eintrag (Belegdatum, Lieferant, Belegnummer,
      Netto/USt/Brutto soweit im Text, Anhang-Dateinamen, Gmail-Thread-ID).
    - Zahlungsbestätigung → `zahlungen[]`; zugehörigen Beleg ggf. auf `bezahlt` setzen.
