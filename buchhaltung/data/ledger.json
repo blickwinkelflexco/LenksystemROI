@@ -1,6 +1,6 @@
 {
-  "stand": "2026-07-07",
-  "zeitraum": "2026-01-01 bis 2026-07-07",
+  "stand": "2026-07-08",
+  "zeitraum": "2026-01-01 bis 2026-07-08",
   "belege": [
     {
       "id": "2026-001",
@@ -394,6 +394,66 @@
       "anhang": [],
       "hinweis": "Beleg-PDF über Link in der E-Mail abrufbar"
     }
+    ,{
+      "id": "2026-029",
+      "belegdatum": "2026-07-07",
+      "lieferant": "Drohnenring Vertrieb (DACH)",
+      "beschreibung": "Rechnung RE-2026-00014-T30 – ZAHLUNGSERINNERUNG am 07.07. erhalten",
+      "belegnr": "RE-2026-00014-T30",
+      "netto": null, "ust": null, "ust_satz": null,
+      "brutto": 2179.90, "waehrung": "EUR",
+      "status": "offen", "beleg_da": "nein",
+      "zahlart": "Überweisung",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIHtK%2FwAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": [],
+      "hinweis": "DRINGEND: Erinnerung erhalten – Original-Rechnung über Portal-Link abrufen, IBAN eintragen und zahlen"
+    },
+    {
+      "id": "2026-030",
+      "belegdatum": "2026-07-06",
+      "lieferant": "Schwingungsdämpfer Dresden GmbH",
+      "beschreibung": "Rechnung 1263900 zu Bestellung 201583",
+      "belegnr": "1263900",
+      "netto": null, "ust": null, "ust_satz": null,
+      "brutto": null, "waehrung": "EUR",
+      "status": "offen", "beleg_da": "ja",
+      "zahlart": "Überweisung",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIHtK2wAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": ["Rechnung 1263900 (PDF im Outlook-Anhang)"],
+      "hinweis": "Betrag, Zahlungsziel und IBAN im PDF-Anhang – zum Zahlen erfassen"
+    },
+    {
+      "id": "2026-031",
+      "belegdatum": "2026-07-06",
+      "lieferant": "Lindlbauer Markus Profitechnik (Schmiertechnik)",
+      "beschreibung": "Rechnung mit Bitte um Zahlung",
+      "belegnr": "",
+      "netto": null, "ust": null, "ust_satz": null,
+      "brutto": null, "waehrung": "EUR",
+      "status": "offen", "beleg_da": "ja",
+      "zahlart": "Überweisung",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIHtK2gAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": ["Rechnung (PDF im Outlook-Anhang)"],
+      "hinweis": "Betrag und IBAN im PDF-Anhang – zum Zahlen erfassen"
+    },
+    {
+      "id": "2026-032",
+      "belegdatum": "2026-07-06",
+      "lieferant": "Maschinenring",
+      "beschreibung": "Maschinenring-Originalrechnung(en) per E-Mail",
+      "belegnr": "",
+      "netto": null, "ust": null, "ust_satz": null,
+      "brutto": null, "waehrung": "EUR",
+      "status": "klaeren", "beleg_da": "ja",
+      "zahlart": "vermutlich SEPA-Einzug (Aviso)",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIHtK4QAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": ["Maschinenring-Rechnung (PDF im Outlook-Anhang)"],
+      "hinweis": "MR bucht üblicherweise per Einzug ab (siehe mr-aviso-Ordner) – prüfen, ob Einzug oder Überweisung nötig; ggf. Mandant Weissauer_Gut statt FlexCo"
+    }
   ],
   "zahlungen": [
     {"datum": "2026-03-01", "lieferant": "Google Cloud", "betrag": 0.50, "waehrung": "EUR", "gmail_thread": "19caa4b366338a5e"},
@@ -403,6 +463,8 @@
     {"datum": "2026-06-15", "lieferant": "Google Ads", "betrag": 500.00, "waehrung": "EUR", "gmail_thread": "19ecaa3df5441f2d"}
   ],
   "ereignisse": [
+    {"datum": "2026-07-08", "typ": "notiz", "lieferant": "GetMyInvoices", "gmail_thread": "", "hinweis": "GetMyInvoices meldet '11 fällige Rechnungen' (Mail 08.07. an info@blickwinkel.pro). Dort liegt eine zweite OP-Quelle – Konto prüfen: entweder als Quelle einbinden oder kündigen."},
+    {"datum": "2026-07-06", "typ": "klaerfall_ausgangsrechnung", "lieferant": "Arbornova (Ulf Herrmann)", "gmail_thread": "", "hinweis": "Kunde meldet 'Fehler beim Überweisen': Zahlung mit 20 % USt eingegangen, benötigt aber 19 % dt. USt (Bezug F200-Kauf). Ausgangsrechnung korrigieren/gutschreiben – mit Gündüz klären."},
     {"datum": "2026-07-08", "typ": "notiz", "lieferant": "Josephinum Research", "gmail_thread": "", "hinweis": "AR 633 (12.205 €) laut Michael bezahlt. OP-Differenz von 295 € zur LBG-Liste (12.500 €) bleibt für Gündüz zur Zuordnung offen."},
     {"datum": "2026-05-01", "typ": "zahlung_abgelehnt", "lieferant": "Google Ads", "gmail_thread": "19de4e593b79b7ec", "hinweis": "Mastercard •0722 abgelehnt"},
     {"datum": "2026-05-14", "typ": "zahlung_abgelehnt", "lieferant": "Google Ads", "gmail_thread": "19e29d27d60e27ac", "hinweis": "Mastercard •0722 abgelehnt"},

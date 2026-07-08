@@ -202,6 +202,7 @@ const MONATE = ["Jän", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep",
 const eur = n => n == null ? "–" : n.toLocaleString("de-AT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const deDate = iso => iso ? iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) : "";
 const mail = t => `https://mail.google.com/mail/u/0/#all/${t}`;
+const src = b => b.link || (b.gmail_thread ? mail(b.gmail_thread) : "");
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // ---------- KPIs ----------
@@ -242,21 +243,21 @@ document.getElementById("kpis").innerHTML = `
 const todos = [];
 for (const b of klaeren) todos.push({
   cls: "klaeren", chip: "klären", title: `${b.lieferant} – Rechnung ${b.belegnr}`,
-  note: b.hinweis, thread: b.gmail_thread,
+  note: b.hinweis, href: src(b),
 });
 for (const b of fehlend.filter(x => x.status !== "klaeren")) todos.push({
   cls: "fehlt", chip: "Beleg fehlt", title: `${b.lieferant}${b.belegnr ? " – " + b.belegnr : ""} (${deDate(b.belegdatum)})`,
-  note: b.hinweis || "Rechnungs-PDF besorgen und ablegen", thread: b.gmail_thread,
+  note: b.hinweis || "Rechnungs-PDF besorgen und ablegen", href: src(b),
 });
 for (const b of offene) todos.push({
   cls: "offen", chip: "offen", title: `${b.lieferant} – ${eur(b.brutto)} ${b.waehrung}`,
-  note: b.hinweis || "Über die Exportdatei unten bezahlen", thread: b.gmail_thread,
+  note: b.hinweis || "Über die Exportdatei unten bezahlen", href: src(b),
 });
 document.getElementById("todo").innerHTML = todos.length
   ? todos.map(t => `<div class="todo-item">
       <span class="chip ${t.cls}">${t.chip}</span>
       <div class="t-main"><div class="t-title">${esc(t.title)}</div><div class="t-note">${esc(t.note)}</div></div>
-      ${t.thread ? `<a class="t-link" href="${mail(t.thread)}" target="_blank" rel="noopener">E-Mail öffnen ↗</a>` : ""}
+      ${t.href ? `<a class="t-link" href="${t.href}" target="_blank" rel="noopener">E-Mail öffnen ↗</a>` : ""}
     </div>`).join("")
   : `<div class="todo-item"><span class="chip bezahlt">erledigt</span><div class="t-main"><div class="t-title">Nichts offen.</div><div class="t-note">Alle erkannten Belege sind bezahlt und zugeordnet.</div></div></div>`;
 
@@ -402,7 +403,7 @@ for (const b of belege.slice().reverse()) {
     <td class="belegnr">${esc(b.belegnr || "–")}</td>
     <td class="num">${b.brutto != null ? eur(b.brutto) + " " + esc(b.waehrung) : "<span class='hint'>im PDF</span>"}</td>
     <td><span class="chip ${s.cls}">${s.txt}</span> ${belegChip(b)}</td>
-    <td><a href="${mail(b.gmail_thread)}" target="_blank" rel="noopener">E-Mail ↗</a></td></tr>`;
+    <td>${src(b) ? `<a href="${src(b)}" target="_blank" rel="noopener">E-Mail ↗</a>` : "–"}</td></tr>`;
 }
 document.getElementById("ledger-table").innerHTML =
   `<table><thead><tr><th class="num">Datum</th><th>Lieferant</th><th>Beleg-Nr.</th><th class="num">Brutto</th><th>Status</th><th>Quelle</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -414,7 +415,7 @@ document.getElementById("btn-belegliste").addEventListener("click", () => {
     deNum(b.netto), b.ust_satz != null ? b.ust_satz + " %" : "", deNum(b.ust), deNum(b.brutto),
     b.waehrung, b.zahlart, (STATUS[b.status] || {}).txt || b.status,
     b.beleg_da === "ja" ? "ja" : b.beleg_da === "nein" ? "NEIN" : "prüfen",
-    b.hinweis, (b.anhang || []).join(", "), mail(b.gmail_thread),
+    b.hinweis, (b.anhang || []).join(", "), src(b),
   ]));
   download(`belegliste-${CFG.jahr}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
 });

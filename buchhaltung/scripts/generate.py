@@ -84,7 +84,7 @@ def belegliste(ledger, config):
             de_num(b.get("ust")), de_num(b.get("brutto")), b.get("waehrung", "EUR"),
             b.get("zahlart", ""), STATUS_TEXT.get(b["status"], b["status"]),
             b.get("hinweis", ""), ", ".join(b.get("anhang", [])),
-            gmail_link(b.get("gmail_thread")),
+            b.get("link") or gmail_link(b.get("gmail_thread")),
         ])
     write_csv(EXPORTS / f"belegliste-{config['jahr']}.csv", header, rows)
 
@@ -100,7 +100,7 @@ def offene_posten(ledger):
             de_date(z.get("faellig")), de_date(b["belegdatum"]), b["lieferant"],
             b.get("belegnr", ""), b.get("beschreibung", ""), de_num(b.get("brutto")),
             b.get("waehrung", "EUR"), STATUS_TEXT.get(b["status"], b["status"]),
-            b.get("hinweis", ""), gmail_link(b.get("gmail_thread")),
+            b.get("hinweis", ""), b.get("link") or gmail_link(b.get("gmail_thread")),
         ])
     write_csv(EXPORTS / "offene-posten.csv", header, rows)
     return offen
