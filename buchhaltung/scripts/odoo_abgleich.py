@@ -72,13 +72,13 @@ def verbinden():
 
 
 def odoo_zeilen(db, uid, key, models, seit):
-    """Buchungszeilen auf Aufwands-/Bankkonten seit Stichtag."""
+    """Zahlungszeilen (Bank/Kassa/Karte) seit Stichtag – eine Zeile je Zahlung,
+    damit Verbindlichkeits-Gegenbuchungen nicht doppelt zählen."""
     domain = [
         ["date", ">=", seit],
         ["parent_state", "=", "posted"],
-        ["account_id.account_type", "in",
-         ["expense", "expense_depreciation", "expense_direct_cost",
-          "asset_current", "liability_payable"]],
+        ["journal_id.type", "in", ["bank", "cash", "credit"]],
+        ["account_id.account_type", "not in", ["asset_cash", "liability_credit_card"]],
     ]
     felder = ["date", "name", "ref", "partner_id", "debit", "credit",
               "account_id", "journal_id", "move_name"]

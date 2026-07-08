@@ -79,13 +79,19 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
    (Raiffeisen-Konto) und ist die Wahrheit für "wurde bezahlt". NUR_ODOO-Zeilen
    mit relevantem Betrag (> 50 €) auf fehlende Belege prüfen und ggf. als neue
    Ledger-Einträge/Klärfälle aufnehmen; NUR_LEDGER heißt: noch nicht gebucht.
-6. **Generieren**: `python3 buchhaltung/scripts/generate.py`
+6. **Beleg-Deckung**: `python3 buchhaltung/scripts/beleg_matching.py`
+   verknüpft jede Odoo-Buchung mit ihrem Beleg (E-Mail-Link aus dem Ledger
+   oder OneDrive-Datei aus `data/beleg_index.json`). Der OneDrive-Index wird
+   bei Bedarf per Microsoft-365-Connector aktualisiert (Dateinamen der
+   Mandanten-/Monatsordner; Format "Ordner|Datei" als JSON-Array).
+   Ziel-Kennzahl im Dashboard: 0 Buchungen ohne Beleg.
+7. **Generieren**: `python3 buchhaltung/scripts/generate.py`
    (baut Belegliste-CSV, offene-posten.csv, Raiffeisen-CSV, SEPA-XML, Dashboard).
-7. **Dashboard veröffentlichen**: `buchhaltung/dashboard/index.html` als Artifact
+8. **Dashboard veröffentlichen**: `buchhaltung/dashboard/index.html` als Artifact
    auf dieselbe URL redeployen (gleicher Dateipfad, gleiches Favicon 📥).
-8. **Committen & pushen** auf `claude/invoice-extraction-accounting-si7mr9`
+9. **Committen & pushen** auf `claude/invoice-extraction-accounting-si7mr9`
    (Message: `Buchhaltung: Lauf YYYY-MM-DD – n neue Belege`).
-9. **Nur bei Handlungsbedarf melden** (neue offene Posten, neue Klärfälle, neue
+10. **Nur bei Handlungsbedarf melden** (neue offene Posten, neue Klärfälle, neue
    fehlende Belege). Sonst still bleiben.
 
 ## Übergabe an Buchhalter Gündüz (kein automatischer Versand!)

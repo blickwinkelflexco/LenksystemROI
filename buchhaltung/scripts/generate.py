@@ -193,7 +193,10 @@ def sepa_xml(posten, config):
 
 def dashboard(ledger, config):
     template = (DASHBOARD / "template.html").read_text(encoding="utf-8")
-    payload = {"ledger": ledger, "config": {
+    buchungen_pfad = BASE / "data" / "buchungen.json"
+    buchungen = json.loads(buchungen_pfad.read_text(encoding="utf-8")) \
+        if buchungen_pfad.exists() else None
+    payload = {"ledger": ledger, "buchungen": buchungen, "config": {
         "auftraggeber_iban": config.get("auftraggeber_iban", ""),
         "auftraggeber_name": config.get("auftraggeber_name", ""),
         "jahr": config["jahr"],

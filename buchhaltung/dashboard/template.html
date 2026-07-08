@@ -167,6 +167,22 @@
     </div>
   </section>
 
+  <section id="sec-buchungen" hidden>
+    <h2>Buchungen am Bankkonto · Beleg-Deckung</h2>
+    <p class="sub" id="buch-sub"></p>
+    <div class="card">
+      <div class="export-grid" style="margin-top:0; margin-bottom:12px;">
+        <button class="btn secondary" id="f-fehlt" style="padding:6px 12px; font-size:13px;">Ohne Beleg</button>
+        <button class="btn secondary" id="f-alle" style="padding:6px 12px; font-size:13px;">Alle</button>
+        <div class="field" style="flex:1; min-width:200px;">
+          <input id="buch-suche" placeholder="Suchen (Partner, Text, Betrag) …" autocomplete="off">
+        </div>
+      </div>
+      <div class="tbl-box" id="buch-table"></div>
+      <div class="export-note" id="buch-note"></div>
+    </div>
+  </section>
+
   <section>
     <h2>Ausgaben pro Monat</h2>
     <p class="sub" id="chart-sub"></p>
@@ -419,6 +435,54 @@ document.getElementById("btn-belegliste").addEventListener("click", () => {
   ]));
   download(`belegliste-${CFG.jahr}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
 });
+
+// ---------- Buchungen / Beleg-Deckung ----------
+const BU = PAYLOAD.buchungen;
+if (BU && BU.buchungen && BU.buchungen.length) {
+  document.getElementById("sec-buchungen").hidden = false;
+  const alle = BU.buchungen;
+  const ohne = alle.filter(b => !b.beleg);
+  const ohneSumme = ohne.reduce((s, b) => s + Math.abs(b.betrag), 0);
+  document.getElementById("buch-sub").textContent =
+    `${alle.length} gebuchte Zahlungen (Odoo, Raiffeisen-Konto) · ${BU.zugeordnet} mit Beleg verknüpft · ` +
+    `${ohne.length} ohne Beleg (${eur(ohneSumme)} €) – Ziel: null.`;
+  let modus = "fehlt", suchtext = "";
+  const zelleBeleg = b => {
+    if (!b.beleg) return `<span class="chip fehlt">Beleg fehlt</span>`;
+    if (b.beleg.typ === "email")
+      return b.beleg.ref ? `<a href="${esc(b.beleg.ref)}" target="_blank" rel="noopener">E-Mail öffnen ↗</a>` : `<span class="chip pruefen">E-Mail-Beleg</span>`;
+    return `<button class="btn secondary kopier" style="padding:3px 10px; font-size:12px;" data-pfad="${esc(b.beleg.ref)}" title="${esc(b.beleg.ref)}">📄 Pfad kopieren</button>`;
+  };
+  const render = () => {
+    let rows = (modus === "fehlt" ? ohne : alle);
+    if (suchtext) {
+      const q = suchtext.toLowerCase();
+      rows = rows.filter(b => (b.partner + " " + b.text + " " + b.betrag).toLowerCase().includes(q));
+    }
+    rows = rows.slice().sort((a, c) => Math.abs(c.betrag) - Math.abs(a.betrag));
+    const gezeigt = rows.slice(0, 120);
+    document.getElementById("buch-table").innerHTML =
+      `<table><thead><tr><th class="num">Datum</th><th>Partner / Buchungstext</th><th class="num">Betrag</th><th>Beleg</th></tr></thead><tbody>` +
+      gezeigt.map(b => `<tr>
+        <td class="num">${deDate(b.datum)}</td>
+        <td><div class="v-name">${esc(b.partner || "–")}</div><div class="v-desc">${esc((b.text || "").slice(0, 90))}</div></td>
+        <td class="num">${eur(b.betrag)} €</td>
+        <td>${zelleBeleg(b)}</td></tr>`).join("") + `</tbody></table>`;
+    document.getElementById("buch-note").textContent = rows.length > 120
+      ? `${gezeigt.length} von ${rows.length} angezeigt (nach Betrag sortiert) – vollständige Liste: exports/odoo-abgleich.csv`
+      : `${rows.length} Buchungen angezeigt. OneDrive-Belege: Pfad kopieren und im Explorer einfügen.`;
+    document.getElementById("f-fehlt").style.opacity = modus === "fehlt" ? "1" : ".55";
+    document.getElementById("f-alle").style.opacity = modus === "alle" ? "1" : ".55";
+  };
+  document.getElementById("f-fehlt").addEventListener("click", () => { modus = "fehlt"; render(); });
+  document.getElementById("f-alle").addEventListener("click", () => { modus = "alle"; render(); });
+  document.getElementById("buch-suche").addEventListener("input", e => { suchtext = e.target.value.trim(); render(); });
+  document.getElementById("buch-table").addEventListener("click", e => {
+    const btn = e.target.closest(".kopier");
+    if (btn) navigator.clipboard.writeText(btn.dataset.pfad).then(() => { btn.textContent = "✓ kopiert"; setTimeout(() => btn.textContent = "📄 Pfad kopieren", 1500); });
+  });
+  render();
+}
 
 document.getElementById("foot-legend").innerHTML =
   `Status: <span class="chip bezahlt">bezahlt</span> abgebucht/quittiert · ` +
