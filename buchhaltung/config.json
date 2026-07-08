@@ -7,7 +7,7 @@
   "auftraggeber_name": "BLICKWINKEL FlexCo",
   "auftraggeber_iban": "AT773403000000456863",
   "buchhalter_name": "Gündüz",
-  "buchhalter_email": "",
+  "buchhalter_email": "Kubilay.Guenduez@lbg.at",
   "uebergabe_modus": "xls_mit_links",
   "mandanten": {
     "Blickwinkel_FlexCo": {
@@ -24,6 +24,13 @@
     "db": "blickwinkel",
     "login": "info@blickwinkel.pro",
     "hinweis": "API-Schlüssel NIE hier eintragen – nur als Umgebungsvariable ODOO_KEY"
+  },
+  "getmyinvoices": {
+    "status": "beobachten_bis_2026-08-08",
+    "entscheidung_langfristig": "kuendigen, sofern keine Deckungslücke gefunden wird",
+    "konto": "BLICKWINKEL digital service",
+    "postfach": "info@blickwinkel.pro",
+    "hinweis": "Kein Login vorhanden – Bewertung läuft über beobachtete Benachrichtigungen (Dubletten/fällige Rechnungen) im täglichen Lauf; Login-Zugang würde eine echte inhaltliche Prüfung ermöglichen."
   },
   "jahr": 2026
 }

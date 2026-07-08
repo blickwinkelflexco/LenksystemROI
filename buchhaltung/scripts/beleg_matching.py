@@ -50,6 +50,15 @@ def parse_datei(ordner, datei):
     return {"ordner": ordner, "datei": datei, "betrag": betrag, "datum": datum}
 
 
+def lade_overrides():
+    """Manuell/per Volltextsuche verifizierte Treffer (PI-Nummer o.ä. im
+    PDF-Inhalt bestätigt) – haben Vorrang vor der Betrag/Datum-Heuristik."""
+    p = BASE / "data" / "beleg_overrides.json"
+    if not p.exists():
+        return []
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
 def lade_index():
     p = BASE / "data" / "beleg_index.json"
     if not p.exists():
@@ -102,6 +111,7 @@ def lade_buchungen():
 
 
 def main():
+    overrides = lade_overrides()
     index = lade_index()
     buchungen, einnahmen = lade_buchungen()
     ledger = json.loads((BASE / "data" / "ledger.json").read_text(encoding="utf-8"))
@@ -110,6 +120,13 @@ def main():
     zugeordnet = 0
     for b in buchungen:
         b["beleg"] = None
+        # 0) Verifizierter Override (PI-Nummer/Referenz im PDF-Inhalt bestätigt)
+        treffer_override = next((o for o in overrides if o["muster"] in b["text"]), None)
+        if treffer_override:
+            b["beleg"] = {"typ": "onedrive", "ref": f"{ONEDRIVE_ROOT}\\{treffer_override['pfad']}",
+                          "label": treffer_override["label"]}
+            zugeordnet += 1
+            continue
         # 1) Ledger-Match aus dem Odoo-Abgleich (E-Mail-Beleg)
         if b["ledger_id"] and b["ledger_id"] in ledger_by_id:
             lb = ledger_by_id[b["ledger_id"]]

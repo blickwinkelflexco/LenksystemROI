@@ -124,6 +124,29 @@ Michael hat entschieden: **keine automatische Übergabe**. Stattdessen:
 - KEINE Mail-Entwürfe an den Buchhalter erstellen, solange
   `uebergabe_modus` = `xls_mit_links` ist.
 
+## GetMyInvoices – Testmonat bis 08.08.2026
+
+Michael-Entscheidung (08.07.2026): einbinden/beobachten, nach einem Monat
+Kündigungsempfehlung geben; langfristiges Ziel ist die Kündigung, sofern der
+Dienst keine echte Deckungslücke schließt, die unser eigenes System nicht
+ohnehin abdeckt.
+
+- Konto: „BLICKWINKEL digital service", Postfach `info@blickwinkel.pro`,
+  Absender `no-reply@getmyinvoices.com` / `hello@getmyinvoices.com`.
+- Kein Login vorhanden – Benachrichtigungsmails sind der einzige Kanal ohne
+  Zusatzzugang. Typische Inhalte: „Dublette erkannt", „X fällige Rechnungen"
+  (Inhalt ohne Login nicht einsehbar).
+- **Täglicher Lauf, bis 08.08.2026**: GetMyInvoices-Mails seit letztem
+  `beobachtung_start`/Log-Stand sichten, Typ (Dublette/fällig/sonstiges) in
+  `data/getmyinvoices_log.json` unter `beobachtungen[]` eintragen. Wenn ein
+  Betrag/Lieferant genannt wird, gegen `ledger.json`/`buchungen.json` prüfen:
+  taucht er dort schon auf? Feld `neue_info_fuer_uns` entsprechend setzen.
+- **Am oder nach 08.08.2026**: Auswertung `beobachtungen[]` – Anteil mit
+  `neue_info_fuer_uns: true` bestimmt die Empfehlung. Kaum/keine Treffer →
+  klare Kündigungsempfehlung an Michael. Mehrere echte Treffer → begründet
+  differenziert vorschlagen (z. B. nur für bestimmte Portale behalten).
+  Ergebnis als kurze Meldung an Michael, NICHT automatisch kündigen.
+
 ## Offene Klärfälle (nicht vergessen)
 
 - Josephinum Research AR 633: 12.205 € laut Michael bezahlt; Differenz 295 €
