@@ -72,20 +72,33 @@ def verbinden():
 
 
 def odoo_zeilen(db, uid, key, models, seit):
-    """Zahlungszeilen (Bank/Kassa/Karte) seit Stichtag – eine Zeile je Zahlung,
-    damit Verbindlichkeits-Gegenbuchungen nicht doppelt zählen."""
-    domain = [
+    """Zahlungszeilen auf Bank/Kassa/Karte seit Stichtag, getrennt nach Richtung:
+      - ausgaben:  liability_payable/expense* – wir haben bezahlt, braucht Lieferantenbeleg
+      - einnahmen: asset_receivable – Kunde hat bezahlt, Beleg ist die eigene Ausgangsrechnung
+      - sonstige:  alles andere (Lohn, Umbuchungen, Steuer …) – informativ, kein Belegzwang
+    Eine Zeile je Zahlung (nicht die Bank-Gegenbuchung), damit nichts doppelt zählt."""
+    basis = [
         ["date", ">=", seit],
         ["parent_state", "=", "posted"],
         ["journal_id.type", "in", ["bank", "cash", "credit"]],
-        ["account_id.account_type", "not in", ["asset_cash", "liability_credit_card"]],
     ]
     felder = ["date", "name", "ref", "partner_id", "debit", "credit",
               "account_id", "journal_id", "move_name"]
-    zeilen = models.execute_kw(db, uid, key, "account.move.line", "search_read",
-                               [domain], {"fields": felder, "limit": 2000})
-    print(f"{len(zeilen)} Buchungszeilen seit {seit} geladen.")
-    return zeilen
+
+    def hole(account_types):
+        domain = basis + [["account_id.account_type", "in", account_types]]
+        return models.execute_kw(db, uid, key, "account.move.line", "search_read",
+                                 [domain], {"fields": felder, "limit": 3000})
+
+    ausgaben = hole(["liability_payable", "expense", "expense_direct_cost",
+                      "expense_depreciation", "asset_fixed"])
+    for z in ausgaben:
+        z["richtung"] = "ausgabe"
+    einnahmen = hole(["asset_receivable"])
+    for z in einnahmen:
+        z["richtung"] = "einnahme"
+    print(f"{len(ausgaben)} Ausgaben-Zeilen, {len(einnahmen)} Einnahmen-Zeilen seit {seit} geladen.")
+    return ausgaben + einnahmen
 
 
 def konten_uebersicht(db, uid, key, models):
@@ -97,9 +110,13 @@ def konten_uebersicht(db, uid, key, models):
 
 
 def abgleich(zeilen, belege):
+    """Nur Ausgaben-Zeilen gegen den Lieferanten-Ledger matchen. Einnahmen
+    brauchen keinen Lieferantenbeleg – die werden separat durchgereicht."""
+    ausgaben = [z for z in zeilen if z["richtung"] == "ausgabe"]
+    einnahmen = [z for z in zeilen if z["richtung"] == "einnahme"]
     offen_ledger = {b["id"]: b for b in belege}
     matches, nur_odoo = [], []
-    for z in zeilen:
+    for z in ausgaben:
         betrag = z["debit"] or z["credit"]
         z_datum = datetime.strptime(z["date"], "%Y-%m-%d").date()
         partner = (z["partner_id"] or [None, ""])[1]
@@ -121,7 +138,7 @@ def abgleich(zeilen, belege):
             offen_ledger.pop(treffer["id"], None)
         else:
             nur_odoo.append(z)
-    return matches, nur_odoo, list(offen_ledger.values())
+    return matches, nur_odoo, list(offen_ledger.values()), einnahmen
 
 
 def main():
@@ -131,7 +148,7 @@ def main():
     db, uid, key, models = verbinden()
     konten_uebersicht(db, uid, key, models)
     zeilen = odoo_zeilen(db, uid, key, models, seit)
-    matches, nur_odoo, nur_ledger = abgleich(zeilen, ledger["belege"])
+    matches, nur_odoo, nur_ledger, einnahmen = abgleich(zeilen, ledger["belege"])
 
     out = BASE / "exports" / "odoo-abgleich.csv"
     lines = ["Abschnitt;Datum;Partner/Lieferant;Text;Betrag;Beleg-ID;Odoo-Buchung"]
@@ -145,9 +162,13 @@ def main():
         if b.get("brutto") is not None:
             lines.append(f"NUR_LEDGER;{b['belegdatum']};{b['lieferant']};{b.get('beschreibung','')};"
                          f"{b['brutto']:.2f};{b['id']};")
+    for z in einnahmen:
+        lines.append(f"EINNAHME;{z['date']};{(z['partner_id'] or ['',''])[1]};{z['name'] or ''};"
+                     f"{(z['debit'] or z['credit']):.2f};;{z['move_name']}")
     out.write_text("﻿" + "\r\n".join(lines) + "\r\n", encoding="utf-8")
-    print(f"\nErgebnis: {len(matches)} Matches, {len(nur_odoo)} nur in Odoo, "
-          f"{len(nur_ledger)} nur im Ledger -> {out.relative_to(BASE)}")
+    print(f"\nErgebnis: {len(matches)} Matches, {len(nur_odoo)} Ausgaben nur in Odoo (brauchen Beleg), "
+          f"{len(nur_ledger)} nur im Ledger, {len(einnahmen)} Einnahmen (kein Belegzwang) "
+          f"-> {out.relative_to(BASE)}")
 
 
 if __name__ == "__main__":

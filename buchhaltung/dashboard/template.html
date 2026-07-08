@@ -443,9 +443,11 @@ if (BU && BU.buchungen && BU.buchungen.length) {
   const alle = BU.buchungen;
   const ohne = alle.filter(b => !b.beleg);
   const ohneSumme = ohne.reduce((s, b) => s + Math.abs(b.betrag), 0);
+  const einSumme = (BU.einnahmen || []).reduce((s, e) => s + Math.abs(e.betrag), 0);
   document.getElementById("buch-sub").textContent =
-    `${alle.length} gebuchte Zahlungen (Odoo, Raiffeisen-Konto) · ${BU.zugeordnet} mit Beleg verknüpft · ` +
-    `${ohne.length} ohne Beleg (${eur(ohneSumme)} €) – Ziel: null.`;
+    `${alle.length} Ausgaben-Zahlungen (Odoo, Raiffeisen-Konto) · ${BU.zugeordnet} mit Beleg verknüpft · ` +
+    `${ohne.length} ohne Beleg (${eur(ohneSumme)} €) – Ziel: null. ` +
+    `Nicht enthalten: ${(BU.einnahmen || []).length} Kundenzahlungen (${eur(einSumme)} €) – die brauchen keinen Lieferantenbeleg, sondern sind über die eigene Ausgangsrechnung in Odoo belegt.`;
   let modus = "fehlt", suchtext = "";
   const zelleBeleg = b => {
     if (!b.beleg) return `<span class="chip fehlt">Beleg fehlt</span>`;

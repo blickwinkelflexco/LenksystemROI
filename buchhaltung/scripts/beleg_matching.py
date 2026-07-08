@@ -64,22 +64,30 @@ def lade_index():
 
 
 def lade_buchungen():
+    """Liest odoo-abgleich.csv. MATCH/NUR_ODOO = Ausgaben (brauchen Lieferantenbeleg).
+    EINNAHME = Kundenzahlungen (kein Belegzwang, eigener Ausgangsrechnungs-Beleg in
+    Odoo) – wird getrennt zurückgegeben. Ältere CSV-Exporte ohne Richtungstrennung
+    (vor dem odoo_abgleich-Fix) enthalten keine EINNAHME-Zeilen; solche Exporte
+    können fälschlich Kundenzahlungen als Ausgabe zählen und sind mit einem
+    Hinweis zu behandeln, bis ein neuer Odoo-Lauf vorliegt."""
     p = BASE / "exports" / "odoo-abgleich.csv"
     if not p.exists():
-        return []
-    rows = []
+        return [], []
+    rows, einnahmen = [], []
     with open(p, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f, delimiter=";"):
-            if r["Abschnitt"] not in ("MATCH", "NUR_ODOO"):
-                continue
-            rows.append({
+            eintrag = {
                 "datum": r["Datum"],
                 "partner": r["Partner/Lieferant"],
                 "text": r["Text"],
                 "betrag": round(float(r["Betrag"]), 2),
                 "ledger_id": r["Beleg-ID"] or None,
                 "odoo": r["Odoo-Buchung"],
-            })
+            }
+            if r["Abschnitt"] == "EINNAHME":
+                einnahmen.append(eintrag)
+            elif r["Abschnitt"] in ("MATCH", "NUR_ODOO"):
+                rows.append(eintrag)
     # Dedupe: Verbindlichkeits- und Bankzeile derselben Zahlung (gleicher Tag,
     # gleicher Betrag) nur einmal zählen; Zeile mit Ledger-Match bevorzugen.
     rows.sort(key=lambda r: (r["datum"], abs(r["betrag"]), r["ledger_id"] is None))
@@ -90,12 +98,12 @@ def lade_buchungen():
             continue
         gesehen.add(k)
         dedupe.append(r)
-    return dedupe
+    return dedupe, einnahmen
 
 
 def main():
     index = lade_index()
-    buchungen = lade_buchungen()
+    buchungen, einnahmen = lade_buchungen()
     ledger = json.loads((BASE / "data" / "ledger.json").read_text(encoding="utf-8"))
     ledger_by_id = {b["id"]: b for b in ledger["belege"]}
 
@@ -128,11 +136,12 @@ def main():
                           "label": e["datei"]}
             zugeordnet += 1
 
-    out = {"stand": ledger["stand"], "buchungen": buchungen,
+    out = {"stand": ledger["stand"], "buchungen": buchungen, "einnahmen": einnahmen,
            "index_dateien": len(index), "zugeordnet": zugeordnet}
     (BASE / "data" / "buchungen.json").write_text(
         json.dumps(out, ensure_ascii=False, default=str), encoding="utf-8")
-    print(f"{zugeordnet} von {len(buchungen)} Buchungen mit Beleg verknüpft "
+    print(f"{zugeordnet} von {len(buchungen)} Ausgaben mit Beleg verknüpft, "
+          f"{len(einnahmen)} Einnahmen separat erfasst "
           f"(Index: {len(index)} Dateien) -> data/buchungen.json")
 
 
