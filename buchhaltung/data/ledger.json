@@ -1,6 +1,6 @@
 {
-  "stand": "2026-07-08",
-  "zeitraum": "2026-01-01 bis 2026-07-08",
+  "stand": "2026-07-09",
+  "zeitraum": "2026-01-01 bis 2026-07-09",
   "belege": [
     {
       "id": "2026-001",
@@ -617,6 +617,69 @@
         "Maschinenring-Rechnung (PDF im Outlook-Anhang)"
       ],
       "hinweis": "MR bucht üblicherweise per Einzug ab (siehe mr-aviso-Ordner) – prüfen, ob Einzug oder Überweisung nötig; ggf. Mandant Weissauer_Gut statt FlexCo"
+    },
+    {
+      "id": "2026-033",
+      "belegdatum": "2026-07-08",
+      "lieferant": "Globe Flight GmbH",
+      "beschreibung": "Drohnen-/Zubehörrechnung RN12271331, Kundennummer 83376",
+      "belegnr": "RN12271331",
+      "netto": null,
+      "ust": null,
+      "ust_satz": null,
+      "brutto": 16078.91,
+      "waehrung": "EUR",
+      "status": "offen",
+      "beleg_da": "ja",
+      "zahlart": "Überweisung",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIjgbagAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": [
+        "Rechnung RN12271331.pdf",
+        "Zahlungserinnerung zur Rechnung RN12271331.pdf",
+        "xrechnung_Invoice RN12271331.xml"
+      ],
+      "hinweis": "DRINGEND - Mahnung erhalten! Fällig 15.07.2026, Betrag 16.078,91 €. IBAN aus dem PDF-Anhang entnehmen und in zahlung{} eintragen, dann automatisch im INFINITY-Export."
+    },
+    {
+      "id": "2026-034",
+      "belegdatum": "2026-07-08",
+      "lieferant": "Emlid B2B (eu.b2b.emlid.com)",
+      "beschreibung": "Order #2011 / PO S00146: Quick Release Adapter, Smartphone Mount, Survey Pole, Reach RX2",
+      "belegnr": "2011",
+      "netto": null,
+      "ust": null,
+      "ust_satz": null,
+      "brutto": 1996.8,
+      "waehrung": "EUR",
+      "status": "bezahlt",
+      "beleg_da": "nein",
+      "zahlart": "Kreditkarte •1652 (bei Bestellung belastet)",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIjgbewAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": [],
+      "hinweis": "Bestellbestätigung nennt Zahlung per Karte •1652 – Rechnung/Beleg noch im Emlid-Portal (eu.b2b.emlid.com) abrufen"
+    },
+    {
+      "id": "2026-035",
+      "belegdatum": "2026-07-06",
+      "lieferant": "Magenta Telekom",
+      "beschreibung": "Magenta Business Rechnung, Kundennummer 6.152663",
+      "belegnr": "6.152663-07/2026",
+      "netto": null,
+      "ust": null,
+      "ust_satz": null,
+      "brutto": 164.66,
+      "waehrung": "EUR",
+      "status": "bezahlt",
+      "beleg_da": "ja",
+      "zahlart": "SEPA-Lastschrift (vermutlich, monatlich wiederkehrend – nie eine Ablehnung gesehen)",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIjgbcgAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": [
+        "Magenta-Rechnung Juli 2026 (PDF im Outlook-Anhang)"
+      ],
+      "hinweis": "Fällig 21.07.2026. Bisher nie eine Ablehnung/Mahnung von Magenta gesehen – vermutlich automatischer Einzug wie bei den Vormonaten; im Zweifel per Odoo-Bankabgleich verifizieren."
     }
   ],
   "zahlungen": [
