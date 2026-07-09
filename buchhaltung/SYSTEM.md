@@ -84,6 +84,16 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
      `status: offen` + `zahlung{}` befüllen → landet automatisch im SEPA-Export.
 3. **Beleg-Vollständigkeit**: `beleg_da` setzen. PDF fehlt → `nein` + `hinweis`,
    wo es zu holen ist (Google-Ads-Portal, OpenAI-Portal, Hostinger-Kundenbereich …).
+   WICHTIG – Mahnung ist kein Beleg: Eine Mahnung/Zahlungserinnerung ist nur ein
+   Hinweis auf eine Zahlungsaufforderung, sie ersetzt nicht die zugrundeliegende
+   Rechnung. Zu jeder Mahnung muss die eigentliche Rechnung (Dokument mit
+   Rechnungsnummer) im `anhang[]` stehen (Absender hängt sie in den allermeisten
+   Fällen selbst mit an – genau prüfen, nicht nur die Mahnung registrieren).
+   Ist nur die Mahnung vorhanden, OHNE separates Rechnungsdokument: `beleg_da:
+   "nein"` setzen und im `hinweis` "nur Mahnung – Rechnung beim Lieferanten
+   anfordern" vermerken. Das Dashboard markiert solche Fälle automatisch
+   (Suche nach "Mahnung"/"Zahlungserinnerung" ohne begleitendes Rechnungs-PDF
+   im `anhang[]`).
 4. **Gmail-Labels setzen** (sobald Gmail-Schreibzugriff wieder autorisiert ist):
    - `Buchhaltung/Beleg` auf jeden erfassten Thread,
    - `Buchhaltung/Offen`, `Buchhaltung/Klären`, `Buchhaltung/Beleg-fehlt` je Status;

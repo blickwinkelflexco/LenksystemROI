@@ -106,6 +106,16 @@
   button.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   .export-note { font-size: 13px; color: var(--muted); margin-top: 10px; }
 
+  .pay-table input[type="text"] { font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; width: 100%; min-width: 130px; box-sizing: border-box; }
+  .pay-table input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pay-table input[type="text"].invalid { border-color: var(--crit); }
+  .pay-table input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
+  .pay-table input[type="checkbox"]:disabled { cursor: not-allowed; opacity: .4; }
+  .pay-table td { vertical-align: middle; }
+  .pay-table tr.disabled { opacity: .55; }
+  .pay-field-note { font-size: 11px; color: var(--crit); margin-top: 2px; }
+  .mahnung-warn { color: var(--crit); font-weight: 600; }
+
   .chart-box { overflow-x: auto; }
   .chart { display: flex; gap: 14px; align-items: flex-end; height: 190px; padding-top: 22px; min-width: 480px; }
   .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative; }
@@ -158,16 +168,18 @@
 
   <section>
     <h2>Zahlung &amp; Export für Raiffeisen INFINITY</h2>
-    <p class="sub">Offene Posten mit Bankverbindung landen hier als fertige Importdatei: CSV im offiziellen INFINITY-Überweisungsformat (Mustervorlage, 13 Spalten) – in INFINITY unter Zahlungen → Importieren einspielen, prüfen, zeichnen. Alternativ als SEPA-XML (pain.001).</p>
+    <p class="sub">Belege gezielt auswählen, Empfänger-IBAN direkt eintragen (wird lokal in diesem Browser gespeichert) und nur die angehakten Zeilen exportieren – CSV im offiziellen INFINITY-Format (13 Spalten) oder SEPA-XML. In INFINITY: Zahlungen → Importieren → prüfen → zeichnen. Der Export selbst löst nichts aus.</p>
     <div class="card">
-      <div class="tbl-box" id="open-table"></div>
-      <div class="export-grid">
+      <div class="export-grid" style="margin-top:0; margin-bottom:14px;">
         <div class="field">
-          <label for="iban">Auftraggeber-IBAN (wird nur lokal gespeichert)</label>
+          <label for="iban">Auftraggeber-IBAN</label>
           <input id="iban" placeholder="AT.. .... .... .... ...." autocomplete="off" spellcheck="false">
         </div>
-        <button class="btn" id="btn-ueb-csv">CSV für INFINITY</button>
-        <button class="btn secondary" id="btn-sepa">SEPA-XML (Alternative)</button>
+      </div>
+      <div class="tbl-box" id="open-table"></div>
+      <div class="export-grid">
+        <button class="btn" id="btn-ueb-csv">Ausgewählte: CSV für INFINITY</button>
+        <button class="btn secondary" id="btn-sepa">Ausgewählte: SEPA-XML</button>
       </div>
       <div class="export-note" id="export-note"></div>
     </div>
@@ -290,29 +302,10 @@ document.getElementById("belege-fehlen").innerHTML = belegeFehlen.length
     </div>`).join("")
   : `<div class="todo-item"><span class="chip bezahlt">erledigt</span><div class="t-main"><div class="t-title">Nichts offen.</div><div class="t-note">Alle Belege liegen vor.</div></div></div>`;
 
-// ---------- Offene Posten / Export ----------
-const zahlbar = offene.filter(b => b.brutto != null && b.zahlung && b.zahlung.iban);
-const openBox = document.getElementById("open-table");
-if (zahlbar.length) {
-  openBox.innerHTML = `<table><thead><tr>
-      <th>Fällig</th><th>Empfänger</th><th>Verwendungszweck</th><th class="num">Betrag</th></tr></thead><tbody>` +
-    zahlbar.map(b => `<tr>
-      <td>${deDate(b.zahlung.faellig) || "–"}</td>
-      <td class="v-name">${esc(b.zahlung.empfaenger || b.lieferant)}</td>
-      <td>${esc(b.zahlung.referenz || (b.lieferant + " " + (b.belegnr || "")))}</td>
-      <td class="num">${eur(b.brutto)} ${esc(b.waehrung)}</td></tr>`).join("") +
-    `</tbody></table>`;
-} else {
-  openBox.innerHTML = `<p style="margin:0; color:var(--muted); font-size:14px;">Aktuell gibt es keine offene Rechnung, die per Überweisung zu zahlen wäre – deine Lieferanten buchen automatisch ab. Sobald eine Rechnung mit Bankverbindung eintrifft, erscheint sie hier und die Exportdatei ist einen Klick entfernt.</p>`;
-}
-
-const ibanInput = document.getElementById("iban");
-ibanInput.value = localStorage.getItem("bw_iban") || CFG.auftraggeber_iban || "";
-ibanInput.addEventListener("input", () => localStorage.setItem("bw_iban", ibanInput.value.trim()));
-
+// ---------- Belege gezielt auswählen & Zahlungsdaten pflegen ----------
 function download(name, content, type) {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob(["﻿" === content[0] ? content : content], { type }));
+  a.href = URL.createObjectURL(new Blob([content], { type }));
   a.download = name;
   a.click();
   URL.revokeObjectURL(a.href);
@@ -321,69 +314,142 @@ const today = L.stand;
 const nb = n => n.toFixed(2);
 const deNum = n => n == null ? "" : n.toLocaleString("de-AT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const xesc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-function sepaXml() {
-  const iban = ibanInput.value.replace(/\s/g, "");
-  const total = zahlbar.reduce((s, b) => s + b.brutto, 0);
-  const msgId = `BLICKWINKEL-${today}`;
-  const txs = zahlbar.map((b, i) => {
-    const z = b.zahlung, zweck = (z.referenz || `${b.lieferant} ${b.belegnr || ""}`).trim().slice(0, 140);
-    return `<CdtTrfTxInf><PmtId><EndToEndId>${xesc(b.belegnr || "OP-" + (i + 1))}</EndToEndId></PmtId>` +
-      `<Amt><InstdAmt Ccy="${xesc(b.waehrung || "EUR")}">${nb(b.brutto)}</InstdAmt></Amt>` +
-      (z.bic ? `<CdtrAgt><FinInstnId><BIC>${xesc(z.bic)}</BIC></FinInstnId></CdtrAgt>` : "") +
-      `<Cdtr><Nm>${xesc(z.empfaenger || b.lieferant)}</Nm></Cdtr>` +
-      `<CdtrAcct><Id><IBAN>${xesc(z.iban.replace(/\s/g, ""))}</IBAN></Id></CdtrAcct>` +
-      `<RmtInf><Ustrd>${xesc(zweck)}</Ustrd></RmtInf></CdtTrfTxInf>`;
-  }).join("");
-  return `<?xml version="1.0" encoding="UTF-8"?>` +
-    `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">` +
-    `<CstmrCdtTrfInitn><GrpHdr><MsgId>${xesc(msgId)}</MsgId><CreDtTm>${today}T08:00:00</CreDtTm>` +
-    `<NbOfTxs>${zahlbar.length}</NbOfTxs><CtrlSum>${nb(total)}</CtrlSum>` +
-    `<InitgPty><Nm>${xesc(CFG.auftraggeber_name)}</Nm></InitgPty></GrpHdr>` +
-    `<PmtInf><PmtInfId>${xesc(msgId)}-1</PmtInfId><PmtMtd>TRF</PmtMtd>` +
-    `<NbOfTxs>${zahlbar.length}</NbOfTxs><CtrlSum>${nb(total)}</CtrlSum>` +
-    `<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf><ReqdExctnDt>${today}</ReqdExctnDt>` +
-    `<Dbtr><Nm>${xesc(CFG.auftraggeber_name)}</Nm></Dbtr>` +
-    `<DbtrAcct><Id><IBAN>${xesc(iban)}</IBAN></Id></DbtrAcct>` +
-    `<DbtrAgt><FinInstnId/></DbtrAgt><ChrgBr>SLEV</ChrgBr>${txs}</PmtInf></CstmrCdtTrfInitn></Document>`;
-}
-
 function csvLine(cells) {
   return cells.map(c => {
     c = c == null ? "" : String(c);
     return /[;"\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c;
   }).join(";");
 }
+const istNurMahnung = b => {
+  const text = ((b.beschreibung || "") + " " + (b.hinweis || "")).toLowerCase();
+  if (!text.includes("mahnung") && !text.includes("zahlungserinnerung")) return false;
+  const hatRechnung = (b.anhang || []).some(a => /rechnung|invoice/i.test(a) && !/mahnung|erinnerung/i.test(a));
+  return !hatRechnung;
+};
+
+const ibanInput = document.getElementById("iban");
+ibanInput.value = localStorage.getItem("bw_iban") || CFG.auftraggeber_iban || "";
+ibanInput.addEventListener("input", () => { localStorage.setItem("bw_iban", ibanInput.value.trim()); refreshExport(); });
+
+const OV_KEY = id => `bw_pay_${id}`;
+const ladeOverride = id => { try { return JSON.parse(localStorage.getItem(OV_KEY(id))) || {}; } catch (e) { return {}; } };
+const speichereOverride = (id, patch) => localStorage.setItem(OV_KEY(id), JSON.stringify({ ...ladeOverride(id), ...patch }));
+
+const kandidaten = belege.filter(b => b.status !== "bezahlt" && b.brutto != null).map(b => {
+  const ov = ladeOverride(b.id), z = b.zahlung || {};
+  return {
+    id: b.id, lieferant: b.lieferant, belegnr: b.belegnr, brutto: b.brutto,
+    waehrung: b.waehrung || "EUR", status: b.status, hinweis: b.hinweis, anhang: b.anhang,
+    empfaenger: ov.empfaenger ?? z.empfaenger ?? b.lieferant,
+    iban: (ov.iban ?? z.iban ?? "").toUpperCase().replace(/\s/g, ""),
+    bic: ov.bic ?? z.bic ?? "",
+    referenz: ov.referenz ?? z.referenz ?? `${b.lieferant} ${b.belegnr || ""}`.trim(),
+    href: src(b),
+    ausgewaehlt: null,
+  };
+});
+for (const k of kandidaten) k.ausgewaehlt = k.status === "offen" && k.iban.length >= 15;
+
+const openBox = document.getElementById("open-table");
+function renderPayTable() {
+  if (!kandidaten.length) {
+    openBox.innerHTML = `<p style="margin:0; color:var(--muted); font-size:14px;">Aktuell keine offene oder zu klärende Rechnung mit Betrag – deine Lieferanten buchen automatisch ab.</p>`;
+    return;
+  }
+  openBox.innerHTML = `<table class="pay-table"><thead><tr>
+      <th></th><th>Lieferant</th><th>Empfänger-Name</th><th>Empfänger-IBAN</th><th>Verwendungszweck</th><th class="num">Betrag</th></tr></thead><tbody>` +
+    kandidaten.map(k => {
+      const ibanOk = k.iban.length >= 15;
+      const mahnungWarn = istNurMahnung(k) ? `<div class="pay-field-note mahnung-warn">⚠ nur Mahnung im Anhang – Rechnung beim Lieferanten anfordern</div>` : "";
+      return `<tr data-id="${esc(k.id)}" class="${k.ausgewaehlt ? "" : "disabled"}">
+        <td><input type="checkbox" class="k-check" ${k.ausgewaehlt ? "checked" : ""} ${ibanOk ? "" : "disabled"}></td>
+        <td><div class="v-name">${esc(k.lieferant)}${k.belegnr ? " · " + esc(k.belegnr) : ""}</div>
+            <div class="v-desc">${STATUS[k.status] ? `<span class="chip ${STATUS[k.status].cls}">${STATUS[k.status].txt}</span>` : ""} ${k.href ? `<a href="${k.href}" target="_blank" rel="noopener">E-Mail ↗</a>` : ""}</div>
+            ${mahnungWarn}</td>
+        <td><input type="text" class="k-empfaenger" value="${esc(k.empfaenger)}"></td>
+        <td><input type="text" class="k-iban ${ibanOk ? "" : "invalid"}" value="${esc(k.iban)}" placeholder="AT...">
+            <div class="pay-field-note" ${ibanOk ? 'hidden' : ''}>IBAN fehlt – aus Rechnungs-PDF eintragen</div></td>
+        <td><input type="text" class="k-referenz" value="${esc(k.referenz)}"></td>
+        <td class="num">${eur(k.brutto)} ${esc(k.waehrung)}</td>
+      </tr>`;
+    }).join("") + `</tbody></table>`;
+
+  openBox.querySelectorAll("tr[data-id]").forEach(tr => {
+    const id = tr.dataset.id, k = kandidaten.find(x => x.id === id);
+    const checkbox = tr.querySelector(".k-check");
+    const ibanField = tr.querySelector(".k-iban");
+    const ibanNote = tr.querySelector(".pay-field-note");
+    const setIbanState = () => {
+      const ok = k.iban.length >= 15;
+      checkbox.disabled = !ok;
+      if (!ok) { checkbox.checked = false; k.ausgewaehlt = false; }
+      else if (!checkbox.checked && k.status === "offen") { checkbox.checked = true; k.ausgewaehlt = true; }
+      ibanField.classList.toggle("invalid", !ok);
+      if (ibanNote) ibanNote.hidden = ok;
+      tr.classList.toggle("disabled", !checkbox.checked);
+    };
+    checkbox.addEventListener("change", () => { k.ausgewaehlt = checkbox.checked; tr.classList.toggle("disabled", !checkbox.checked); refreshExport(); });
+    tr.querySelector(".k-empfaenger").addEventListener("input", e => { k.empfaenger = e.target.value; speichereOverride(id, { empfaenger: k.empfaenger }); });
+    ibanField.addEventListener("input", e => { k.iban = e.target.value.toUpperCase().replace(/\s/g, ""); speichereOverride(id, { iban: k.iban }); setIbanState(); refreshExport(); });
+    tr.querySelector(".k-referenz").addEventListener("input", e => { k.referenz = e.target.value; speichereOverride(id, { referenz: k.referenz }); });
+  });
+}
+renderPayTable();
+
+function ausgewaehlte() { return kandidaten.filter(k => k.ausgewaehlt && k.iban.length >= 15); }
+
+function sepaXml(sel) {
+  const iban = ibanInput.value.replace(/\s/g, "");
+  const total = sel.reduce((s, k) => s + k.brutto, 0);
+  const msgId = `BLICKWINKEL-${today}`;
+  const txs = sel.map((k, i) =>
+    `<CdtTrfTxInf><PmtId><EndToEndId>${xesc(k.belegnr || "OP-" + (i + 1))}</EndToEndId></PmtId>` +
+    `<Amt><InstdAmt Ccy="${xesc(k.waehrung)}">${nb(k.brutto)}</InstdAmt></Amt>` +
+    (k.bic ? `<CdtrAgt><FinInstnId><BIC>${xesc(k.bic)}</BIC></FinInstnId></CdtrAgt>` : "") +
+    `<Cdtr><Nm>${xesc(k.empfaenger)}</Nm></Cdtr>` +
+    `<CdtrAcct><Id><IBAN>${xesc(k.iban)}</IBAN></Id></CdtrAcct>` +
+    `<RmtInf><Ustrd>${xesc(k.referenz.slice(0, 140))}</Ustrd></RmtInf></CdtTrfTxInf>`
+  ).join("");
+  return `<?xml version="1.0" encoding="UTF-8"?>` +
+    `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">` +
+    `<CstmrCdtTrfInitn><GrpHdr><MsgId>${xesc(msgId)}</MsgId><CreDtTm>${today}T08:00:00</CreDtTm>` +
+    `<NbOfTxs>${sel.length}</NbOfTxs><CtrlSum>${nb(total)}</CtrlSum>` +
+    `<InitgPty><Nm>${xesc(CFG.auftraggeber_name)}</Nm></InitgPty></GrpHdr>` +
+    `<PmtInf><PmtInfId>${xesc(msgId)}-1</PmtInfId><PmtMtd>TRF</PmtMtd>` +
+    `<NbOfTxs>${sel.length}</NbOfTxs><CtrlSum>${nb(total)}</CtrlSum>` +
+    `<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf><ReqdExctnDt>${today}</ReqdExctnDt>` +
+    `<Dbtr><Nm>${xesc(CFG.auftraggeber_name)}</Nm></Dbtr>` +
+    `<DbtrAcct><Id><IBAN>${xesc(iban)}</IBAN></Id></DbtrAcct>` +
+    `<DbtrAgt><FinInstnId/></DbtrAgt><ChrgBr>SLEV</ChrgBr>${txs}</PmtInf></CstmrCdtTrfInitn></Document>`;
+}
 
 const note = document.getElementById("export-note");
 const btnSepa = document.getElementById("btn-sepa");
 const btnUebCsv = document.getElementById("btn-ueb-csv");
-function refreshButtons() {
+function refreshExport() {
   const iban = ibanInput.value.replace(/\s/g, "");
-  btnSepa.disabled = !zahlbar.length || iban.length < 15;
-  btnUebCsv.disabled = !zahlbar.length || iban.length < 15;
-  note.textContent = !zahlbar.length
-    ? "Kein Export nötig – keine per Überweisung zahlbaren Posten."
-    : (iban.length < 15 ? "IBAN eintragen, dann sind die Importdateien freigeschaltet." :
-       `${zahlbar.length} Überweisung(en) · gesamt ${eur(zahlbar.reduce((s, b) => s + b.brutto, 0))} €`);
+  const sel = ausgewaehlte();
+  btnSepa.disabled = !sel.length || iban.length < 15;
+  btnUebCsv.disabled = !sel.length || iban.length < 15;
+  note.textContent = !kandidaten.length
+    ? "Kein Export nötig – nichts zu zahlen."
+    : (iban.length < 15 ? "Auftraggeber-IBAN oben eintragen, dann ist der Export freigeschaltet."
+       : !sel.length ? "Nichts ausgewählt (oder IBAN bei ausgewählten Zeilen fehlt noch)."
+       : `${sel.length} von ${kandidaten.length} ausgewählt · gesamt ${eur(sel.reduce((s, k) => s + k.brutto, 0))} €`);
 }
-ibanInput.addEventListener("input", refreshButtons);
-refreshButtons();
+refreshExport();
 
-btnSepa.addEventListener("click", () => download(`sepa-infinity-${today}.xml`, sepaXml(), "application/xml"));
+btnSepa.addEventListener("click", () => download(`sepa-infinity-${today}.xml`, sepaXml(ausgewaehlte()), "application/xml"));
 btnUebCsv.addEventListener("click", () => {
-  // Offizielles INFINITY-Überweisungsformat (CSV-Mustervorlage, 13 Spalten)
+  const sel = ausgewaehlte();
   const rows = [csvLine(["Durchführungsdatum", "Empfänger Name", "Empfänger Adresse", "Empfänger Ort",
     "Empfänger IBAN", "Empfänger BIC", "Betrag in EUR", "Zahlungsreferenz/Verwendungszweck",
     "Auftraggeberinformation", "Geschäftsvorfallcode", "Dringlichkeit", "Auftraggeber IBAN",
     "Abweichender Auftraggeber"])];
-  for (const b of zahlbar) rows.push(csvLine([
-    deDate(today), (b.zahlung.empfaenger || b.lieferant).slice(0, 70),
-    (b.zahlung.adresse || "").slice(0, 35), (b.zahlung.ort || "").slice(0, 35),
-    b.zahlung.iban.replace(/\s/g, ""), b.zahlung.bic || "",
-    b.brutto.toFixed(2).replace(".", ","),
-    (b.zahlung.referenz || `${b.lieferant} ${b.belegnr || ""}`.trim()).slice(0, 140),
-    "", "", "", ibanInput.value.replace(/\s/g, ""), "",
+  for (const k of sel) rows.push(csvLine([
+    deDate(today), k.empfaenger.slice(0, 70), "", "",
+    k.iban, k.bic || "", k.brutto.toFixed(2).replace(".", ","),
+    k.referenz.slice(0, 140), "", "", "", ibanInput.value.replace(/\s/g, ""), "",
   ]));
   download(`Raiffeisen_Infinity_Ueberweisungen_${today}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
 });
