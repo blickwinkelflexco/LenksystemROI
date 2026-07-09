@@ -82,6 +82,20 @@ und die Referenz dafür, wie das System funktioniert. Es wird bei jedem Lauf bef
      `klaeren` bzw. `offen` setzen und `hinweis` schreiben.
    - Rechnung mit Bankverbindung im Text (IBAN/Verwendungszweck/Zahlungsziel) →
      `status: offen` + `zahlung{}` befüllen → landet automatisch im SEPA-Export.
+   - **IBAN/BIC IMMER selbst aus dem Beleg auslesen, niemals dem Nutzer zum
+     manuellen Eintragen überlassen.** Jede echte Rechnung nennt eine
+     Bankverbindung – das ist keine Ausnahme, sondern die Regel. Vorgehen:
+     `read_resource` funktioniert auch direkt auf E-Mail-Anhänge
+     (`mail:///messages/{id}/attachments/{attachmentId}`) und liefert bei
+     PDFs Klartext, bei XRechnung/ZUGFeRD-XML-Anhängen strukturierte Daten
+     (IBAN im Element `PayeePartyCreditorFinancialAccount/IBANID`, BIC in
+     `PayeeSpecifiedCreditorFinancialInstitution/BICID` – dort bevorzugt
+     auslesen, da maschinenlesbar und fehlerfrei). Bei reinen PDFs auf
+     "IBAN"/"Bankverbindung"/"Kontoinhaber" im extrahierten Text achten.
+     Vor dem Eintrag IBAN-Prüfsumme (MOD-97) verifizieren – bei echtem Geld
+     keine Tippfehler riskieren. Nur wenn eine Rechnung nachweislich KEINE
+     Bankverbindung enthält (z. B. reine Kreditkartenbelege), bleibt
+     `zahlung` leer – das ist die Ausnahme, nicht der Normalfall.
 3. **Beleg-Vollständigkeit**: `beleg_da` setzen. PDF fehlt → `nein` + `hinweis`,
    wo es zu holen ist (Google-Ads-Portal, OpenAI-Portal, Hostinger-Kundenbereich …).
    WICHTIG – Mahnung ist kein Beleg: Eine Mahnung/Zahlungserinnerung ist nur ein

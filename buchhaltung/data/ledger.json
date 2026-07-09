@@ -542,18 +542,27 @@
       "lieferant": "Drohnenring Vertrieb (DACH)",
       "beschreibung": "Rechnung RE-2026-00014-T30 – ZAHLUNGSERINNERUNG am 07.07. erhalten",
       "belegnr": "RE-2026-00014-T30",
-      "netto": null,
-      "ust": null,
-      "ust_satz": null,
+      "netto": 1800.0,
+      "ust": 360.0,
+      "ust_satz": 20,
       "brutto": 2179.9,
       "waehrung": "EUR",
       "status": "offen",
-      "beleg_da": "nein",
+      "beleg_da": "ja",
       "zahlart": "Überweisung",
       "gmail_thread": "",
       "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIHtK%2FwAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
-      "anhang": [],
-      "hinweis": "DRINGEND: kein PayPal-Treffer Jun/Jul und Erinnerung erhalten – wirklich offen. Rechnung über Portal-Link abrufen, IBAN eintragen und zahlen"
+      "anhang": [
+        "Rechnung_RE-2026-00014-T30.pdf"
+      ],
+      "hinweis": "DRINGEND – bereits seit 12.06.2026 überfällig (Mahnung erhalten). Zahlungsdaten aus der Original-Rechnung im Anhang ausgelesen: IBAN/BIC bestätigt.",
+      "zahlung": {
+        "empfaenger": "Drohnenring Vertrieb (DACH)",
+        "iban": "AT724300041898951003",
+        "bic": "VBOEATWW",
+        "referenz": "RE-2026-00014-T30",
+        "faellig": "2026-06-12"
+      }
     },
     {
       "id": "2026-030",
@@ -582,10 +591,10 @@
       "lieferant": "Lindlbauer Markus Profitechnik (Schmiertechnik)",
       "beschreibung": "Rechnung mit Bitte um Zahlung",
       "belegnr": "",
-      "netto": null,
-      "ust": null,
-      "ust_satz": null,
-      "brutto": null,
+      "netto": 68.94,
+      "ust": 13.79,
+      "ust_satz": 20,
+      "brutto": 82.73,
       "waehrung": "EUR",
       "status": "offen",
       "beleg_da": "ja",
@@ -593,9 +602,16 @@
       "gmail_thread": "",
       "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIHtK2gAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
       "anhang": [
-        "Rechnung (PDF im Outlook-Anhang)"
+        "RE-202607_074 06.07.2026 13_07_41.pdf"
       ],
-      "hinweis": "Kein PayPal-Treffer – vor Zahlung gegen Bankbewegungen (Odoo) prüfen, sobald ODOO_KEY gesetzt ist"
+      "hinweis": "Zahlungsdaten aus der Original-Rechnung im Anhang ausgelesen: IBAN/BIC bestätigt, zahlbar bis 16.07.2026.",
+      "zahlung": {
+        "empfaenger": "Markus Lindlbauer (Lindlbauer Profitechnik)",
+        "iban": "AT163403000000713362",
+        "bic": "RZOOAT2L",
+        "referenz": "RE-202607/074",
+        "faellig": "2026-07-16"
+      }
     },
     {
       "id": "2026-032",
@@ -624,9 +640,9 @@
       "lieferant": "Globe Flight GmbH",
       "beschreibung": "Drohnen-/Zubehörrechnung RN12271331, Kundennummer 83376",
       "belegnr": "RN12271331",
-      "netto": null,
-      "ust": null,
-      "ust_satz": null,
+      "netto": 16078.91,
+      "ust": 0.0,
+      "ust_satz": 0,
       "brutto": 16078.91,
       "waehrung": "EUR",
       "status": "offen",
@@ -639,7 +655,16 @@
         "Zahlungserinnerung zur Rechnung RN12271331.pdf",
         "xrechnung_Invoice RN12271331.xml"
       ],
-      "hinweis": "DRINGEND - Mahnung erhalten! Fällig 15.07.2026, Betrag 16.078,91 €. IBAN aus dem PDF-Anhang entnehmen und in zahlung{} eintragen, dann automatisch im INFINITY-Export."
+      "hinweis": "DRINGEND – bereits seit 03.07.2026 überfällig (Mahnung erhalten). Zahlungsdaten aus XRechnung (XML-Anhang) ausgelesen: IBAN/BIC/Adresse bestätigt, MwSt-frei (innergemeinschaftliche Lieferung, Dual-Use-Gut).",
+      "zahlung": {
+        "empfaenger": "Globe Flight GmbH",
+        "iban": "DE81703510300011170081",
+        "bic": "BYLADEM1WHM",
+        "adresse": "Borsigstr. 7",
+        "ort": "93092 Barbing",
+        "referenz": "RN12271331 Kundennr. 83376",
+        "faellig": "2026-07-03"
+      }
     },
     {
       "id": "2026-034",
