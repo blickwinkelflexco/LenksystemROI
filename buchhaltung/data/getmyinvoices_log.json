@@ -1,9 +1,0 @@
-{
-  "beobachtung_start": "2026-07-08",
-  "check_faellig": "2026-08-08",
-  "ziel": "Prüfen, ob GetMyInvoices Rechnungen/Belege findet, die unser eigenes System (Gmail+Outlook+Odoo+OneDrive) nicht ohnehin erfasst. Langfristige Absicht: kündigen, sofern keine echte Deckungslücke belegt ist.",
-  "beobachtungen": [
-    {"datum": "2026-07-08", "typ": "Dublette erkannt", "neue_info_fuer_uns": false, "notiz": "Interne Dublettenprüfung von GetMyInvoices selbst, kein neuer Beleg."},
-    {"datum": "2026-07-08", "typ": "Fällige Rechnungen (Anzahl unbekannt, frühere Mail nannte 11)", "neue_info_fuer_uns": null, "notiz": "Ohne Portal-Login nicht prüfbar, welche Rechnungen gemeint sind – Inhalt nicht aus Benachrichtigungsmail ersichtlich."}
-  ]
-}
