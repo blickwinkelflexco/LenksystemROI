@@ -1,6 +1,6 @@
 {
-  "stand": "2026-07-09",
-  "zeitraum": "2026-01-01 bis 2026-07-09",
+  "stand": "2026-07-10",
+  "zeitraum": "2026-01-01 bis 2026-07-10",
   "belege": [
     {
       "id": "2026-001",
@@ -705,6 +705,46 @@
         "Magenta-Rechnung Juli 2026 (PDF im Outlook-Anhang)"
       ],
       "hinweis": "Fällig 21.07.2026. Bisher nie eine Ablehnung/Mahnung von Magenta gesehen – vermutlich automatischer Einzug wie bei den Vormonaten; im Zweifel per Odoo-Bankabgleich verifizieren."
+    },
+    {
+      "id": "2026-036",
+      "belegdatum": "2026-07-09",
+      "lieferant": "ASFINAG",
+      "beschreibung": "Erneuerung Mehrfahrten-Karte RI-321GB",
+      "belegnr": "",
+      "netto": null,
+      "ust": null,
+      "ust_satz": null,
+      "brutto": 80.0,
+      "waehrung": "EUR",
+      "status": "bezahlt",
+      "beleg_da": "nein",
+      "zahlart": "PayPal (automatisch, hinterlegtes Zahlungsmittel)",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADI4MylQAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": [],
+      "hinweis": "Automatische Verlängerung, kann laut Mail einige Tage dauern. Rechnung/Beleg im ASFINAG-Kundenkonto abrufbar. Mandant prüfen (Fahrzeug FlexCo oder Weissauer Gut?)."
+    },
+    {
+      "id": "2026-037",
+      "belegdatum": "2026-07-09",
+      "lieferant": "Magenta Telekom",
+      "beschreibung": "Magenta Rechnung, Kundennummer 1.19667990 (zweites/separates Konto)",
+      "belegnr": "1.19667990-07/2026",
+      "netto": null,
+      "ust": null,
+      "ust_satz": null,
+      "brutto": 2.52,
+      "waehrung": "EUR",
+      "status": "bezahlt",
+      "beleg_da": "ja",
+      "zahlart": "SEPA-Lastschrift (vermutlich, wie Kundennr. 6.152663)",
+      "gmail_thread": "",
+      "link": "https://outlook.office365.com/owa/?ItemID=AQMkADdlNWUyNDBiLTFlNGYtNGZhMC04NjUzLWY0ZmFkYTkyMWU4NwBGAAADmJeibKI1z0SWP4o%2BEXRBlQcAO%2BzgbwJ6D0Kjlh6wiv0hrQAAAgEMAAAAO%2BzgbwJ6D0Kjlh6wiv0hrQADIuA0dwAAAA%3D%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "anhang": [
+        "Magenta-Rechnung Juli 2026 Kundennr. 1.19667990 (PDF im Outlook-Anhang)"
+      ],
+      "hinweis": "Fällig 16.07.2026. Zweites Magenta-Konto neben Kundennr. 6.152663 – evtl. eigene SIM/Zusatzleistung, ggf. mit Gündüz klären ob beide betrieblich sind."
     }
   ],
   "zahlungen": [
